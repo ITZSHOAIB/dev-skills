@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460" role="img" aria-labelledby="t d">
+  <title id="t">dev-skills</title>
+  <desc id="d">Agent skills for shipping code you can trust. A terminal shows the cold-review skill running three review axes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#0d1b2e"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8f4ff"/><stop offset="1" stop-color="#6fd3ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity=".28"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" opacity=".07"/>
+    </pattern>
+  </defs>
+  <style>
+    .sans{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
+    .mono{font-family:ui-monospace,SFMono-Regular,'Cascadia Code',Consolas,Menlo,monospace;font-size:17px}
+    .row{opacity:0;animation:rise .5s ease-out forwards}
+    .r1{animation-delay:.3s}.r2{animation-delay:.8s}.r3{animation-delay:1.3s}.r4{animation-delay:1.8s}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){.row{opacity:1;animation:none}}
+  </style>
+  <rect width="1280" height="460" rx="20" fill="url(#bg)"/>
+  <rect width="1280" height="460" rx="20" fill="url(#dots)"/>
+  <circle cx="930" cy="230" r="360" fill="url(#glow)"/>
+
+  <text x="72" y="196" class="sans" font-size="84" font-weight="800" letter-spacing="-3" fill="url(#word)">dev-skills</text>
+  <text x="74" y="246" class="sans" font-size="27" fill="#c7d6e8">Agent skills for shipping code you can trust.</text>
+  <text x="74" y="296" class="mono" fill="#6fd3ff">npx skills add ITZSHOAIB/dev-skills</text>
+
+  <g transform="translate(676 74)">
+    <rect width="532" height="312" rx="14" fill="#0a0f1c" stroke="#27405c"/>
+    <path d="M0 14a14 14 0 0 1 14-14h504a14 14 0 0 1 14 14v26H0z" fill="#142235"/>
+    <circle cx="24" cy="20" r="6" fill="#f87171"/><circle cx="46" cy="20" r="6" fill="#fbbf24"/><circle cx="68" cy="20" r="6" fill="#4ade80"/>
+    <text x="28" y="84" class="mono" fill="#e8f4ff"><tspan fill="#6fd3ff">❯</tspan> /cold-review main</text>
+    <g class="row r1"><text x="28" y="132" class="mono" fill="#9fb3c8"><tspan fill="#4ade80">✓</tspan> Types and tests</text></g>
+    <g class="row r2"><text x="28" y="170" class="mono" fill="#e8f4ff"><tspan fill="#6fd3ff">◆</tspan> Cold read<tspan x="210" fill="#9fb3c8">no backstory</tspan></text></g>
+    <g class="row r3"><text x="28" y="208" class="mono" fill="#e8f4ff"><tspan fill="#6fd3ff">◆</tspan> Standards<tspan x="210" fill="#9fb3c8">your rules</tspan></text></g>
+    <g class="row r3"><text x="28" y="246" class="mono" fill="#e8f4ff"><tspan fill="#6fd3ff">◆</tspan> Spec<tspan x="210" fill="#9fb3c8">what you asked for</tspan></text></g>
+    <g class="row r4"><text x="28" y="284" class="mono" fill="#fbbf24">→ You choose what gets fixed</text></g>
+  </g>
+</svg>
