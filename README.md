@@ -107,12 +107,17 @@ The agent then stops and you choose what to fix. After your fixes, a brand-new r
 
 ### Requirements
 
-- An agent that can start fresh subagents, such as Claude Code.
-- The [`code-review`](https://github.com/mattpocock/skills) skill, which supplies the Standards and Spec reviews:
+Cold Review only needs an agent that can start fresh subagents, such as Claude Code.
 
-  ```sh
-  npx skills add mattpocock/skills --skill code-review -g
-  ```
+### Recommended
+
+Matt Pocock's [`code-review`](https://github.com/mattpocock/skills) gives more thorough Standards and Spec reviews:
+
+```sh
+npx skills add mattpocock/skills --skill code-review -g
+```
+
+If it's missing, Cold Review asks before installing it. Say no and it runs its own shorter built-in reviews, and the report tells you which ones ran.
 
 ### When to use it
 

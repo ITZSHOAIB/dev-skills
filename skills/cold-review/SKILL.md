@@ -1,10 +1,10 @@
 ---
 name: cold-review
 disable-model-invocation: true
-description: Review a code change with the code-review skill plus a zero-context cold read and a human-approved fix loop.
+description: Review a code change with a zero-context cold read, standards and spec checks, and a human-approved fix loop.
 ---
 
-Three-axis review of a code change: **Standards** and **Spec** come from the `code-review` skill, and **Cold read** comes from a goldfish: a fresh subagent that sees the code and nothing about why it was written. You are the elephant: you hold the context, triage findings, and apply only what the user approves.
+Three-axis review of a code change: **Standards** and **Spec** come from the `code-review` skill when available, and **Cold read** comes from a goldfish: a fresh subagent that sees the code and nothing about why it was written. You are the elephant: you hold the context, triage findings, and apply only what the user approves.
 
 Arguments: a fixed point (commit, branch, tag, `main`), optionally a spec path. Ask for the fixed point if it is missing.
 
@@ -12,7 +12,7 @@ Arguments: a fixed point (commit, branch, tag, `main`), optionally a spec path. 
 
 Resolve the fixed point with `git rev-parse` and compute `BASE=$(git merge-base <fixed-point> HEAD)`. Confirm `git diff $BASE` is non-empty.
 
-Run `git status --short`. If there is uncommitted work, tell the user the Standards and Spec axes will miss it, because `code-review` only reads commits, while the cold read includes it. Ask whether to commit first or continue. If `git log $BASE..HEAD` is empty, `code-review` has nothing to read: continuing means skipping step 4 and reporting Standards and Spec as not run.
+Run `git status --short`. If there is uncommitted work, tell the user the Standards and Spec axes will miss it, because they only read commits, while the cold read includes it. Ask whether to commit first or continue. If `git log $BASE..HEAD` is empty, those axes have nothing to read: continuing means skipping step 4 and reporting Standards and Spec as not run.
 
 Done when `BASE` is known and the user has settled any uncommitted work.
 
@@ -53,9 +53,20 @@ Done when the report has all three headings. Keep it unedited for step 5.
 
 ## 4. Run the two-axis review
 
-Invoke the `code-review` skill with the fixed point and spec path. Do this after step 3, so nothing from it can reach the goldfish.
+Do this after step 3, so nothing from it can reach the goldfish.
 
-Done when you have its `## Standards` and `## Spec` reports.
+If the `code-review` skill is available, invoke it with the fixed point and spec path.
+
+If it is missing, ask the user once whether to install it, and wait for the answer:
+
+```sh
+npx skills add mattpocock/skills --skill code-review -g
+```
+
+- **Yes**: run the command. If the skill can be invoked in this session, invoke it. Otherwise tell the user it arrives in their next session, and use the fallback for this run.
+- **No**: follow [the fallback review](FALLBACK-REVIEW.md).
+
+Done when you have `## Standards` and `## Spec` reports, and the report says which review produced them.
 
 ## 5. Check the paraphrase and triage
 
@@ -77,6 +88,6 @@ Apply the approved fixes and re-run the tight checks. Then repeat step 3 with a 
 
 Stop when a round has no new Blocker or Major finding, or after 3 rounds, whichever comes first. If findings remain at round 3, report them as open. A goldfish that keeps raising the same point usually means the code needs a comment or a test rather than another fix.
 
-Standards and Spec run once. If the fixes were large, suggest the user commit and run `code-review` again.
+Standards and Spec run once. If the fixes were large, suggest the user commit and repeat step 4.
 
 Done when you have reported the final state: fixes applied, findings kept with reasons, and findings left open.
