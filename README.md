@@ -137,7 +137,10 @@ The agent reads a pull request, checks its test claims, and builds one review pa
 
 ```text
 /guided-review https://github.com/OWNER/REPO/pull/123
+/guided-review https://github.com/OWNER/REPO/pull/123 --deep --cold
 ```
+
+The default is one lean pass by the agent. `--deep` adds a Standards review (from `code-review`) and `--cold` adds a zero-context cold read (from `cold-review`); each costs roughly 40k extra tokens, and their findings go through the same filter.
 
 ### What you get
 

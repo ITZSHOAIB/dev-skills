@@ -1,6 +1,6 @@
 ---
 name: guided-review
-description: Guided PR or branch review for a human reviewer — a short problem/solution summary, findings to approve or dismiss, and an implementor prompt that updates from those choices. Invoke with /guided-review <PR URL or number>.
+description: Guided PR or branch review for a human reviewer — a short problem/solution summary, findings to approve or dismiss, and an implementor prompt that updates from those choices. Invoke with /guided-review <PR URL or number> [--deep] [--cold].
 disable-model-invocation: true
 ---
 
@@ -16,7 +16,7 @@ Cost discipline: one PR needs one diff read, a few targeted reads, and one small
 
 - First run `node <skill dir>/clean.mjs`: it deletes stored reviews of merged PRs (`--closed` also removes closed ones).
 - `gh pr view <pr> --json title,body,headRefName,baseRefName,files` and `gh pr diff <pr>`, once each.
-- Read beyond the diff only where a suspicion needs it (a caller, the server behind a client change). No broad exploration, no subagents.
+- Read beyond the diff only where a suspicion needs it (a caller, the server behind a client change). No broad exploration, no subagents unless a flag asks for them.
 - Check out the branch and run the narrowest test command from `AGENTS.md`/`package.json`.
 
 Done when each changed file is read and the PR body's test claims are checked against the one command run.
@@ -30,6 +30,15 @@ At most six candidates, highest severity first; fold extras into one nit. Each h
 - `fix` and `test` (the check that would catch it first; empty for a nit).
 
 A suspicion without a scenario is dropped. A broken repo rule counts. A call only the human can make becomes a question, never a finding.
+
+### Optional engines
+
+Default is the one pass above. Add engines only when the human passes the flag; their output is candidates, so it goes through the same scenario filter and six-finding cap.
+
+- `--deep`: start one subagent on the **Standards** axis of the `code-review` skill (repo docs plus the smell baseline) over the PR diff. Keep its hard violations and any smell that has a scenario; drop the rest.
+- `--cold`: start one fresh subagent given only the diff (no PR body, commits, or conversation) to explain what the change does, what it assumes, and what surprises it, as in the `cold-review` skill's cold read. Verify each surprise against the code before it becomes a finding. Use it for PRs with real design decisions.
+
+If a named skill is not installed, say so and continue with the one pass. The Spec axis is not used: a PR body is too weak a spec.
 
 ## 3. Build the review page
 
