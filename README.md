@@ -10,12 +10,13 @@
   <a href="#install">Install</a> &ensp;·&ensp;
   <a href="#skills">Skills</a> &ensp;·&ensp;
   <a href="#cold-review">Cold Review</a> &ensp;·&ensp;
+  <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
   <a href="#credits">Credits</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg" alt="License: MIT"></a>
-  <a href="#skills"><img src="https://img.shields.io/badge/skills-1-6fd3ff.svg" alt="Skills: 1"></a>
+  <a href="#skills"><img src="https://img.shields.io/badge/skills-2-6fd3ff.svg" alt="Skills: 2"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg" alt="Install with npx skills"></a>
 </p>
 
@@ -55,6 +56,7 @@ npx skills remove cold-review -g             # remove a skill
 | Skill | What it does | Run it with |
 |---|---|---|
 | [`cold-review`](skills/cold-review/SKILL.md) | Reviews a code change with a reader who has no backstory, plus standards and spec checks, then fixes only what you approve. | `/cold-review main` |
+| [`guided-review`](skills/guided-review/SKILL.md) | Reviews a pull request as a short summary plus findings you approve or dismiss, then builds the fix prompt from your choices. | `/guided-review <PR URL>` |
 
 ## Cold Review
 
@@ -124,6 +126,37 @@ If it's missing, Cold Review asks before installing it. Say no and it runs its o
 Use it for changes with real design decisions. For a small, clear fix, your normal review is enough, because each round spends agent time on several reviewers.
 
 Cold Review doesn't replace tests or human judgement. The reader is told to stay away from specs and history, but nothing enforces that, and project instruction files such as `AGENTS.md` may still load automatically.
+
+## Guided Review
+
+> You review. The agent prepares the evidence and the hand-off.
+
+The agent reads a pull request, checks its test claims, and builds one review page. It makes no verdict for you to rubber-stamp.
+
+### Usage
+
+```text
+/guided-review https://github.com/OWNER/REPO/pull/123
+```
+
+### What you get
+
+- **Problem and approach**: two short paragraphs on what the PR solves and how.
+- **Findings**: at most six, each with a failing scenario and a suggested fix. You press **Approve** or **Dismiss** and can add your own comment.
+- **Questions**: calls only you can make, each with a box for your answer.
+- **Implementor prompt**: rebuilt live from the findings you approved and your comments, ready to paste into the agent that wrote the PR.
+
+### Where reviews live
+
+Each review is stored as `reviews/<owner>-<repo>-pr-<n>.html` inside the installed skill folder (git-ignored). `serve.mjs` serves an index of all of them on your Tailscale address, or `127.0.0.1` without Tailscale. `clean.mjs` deletes the reviews of merged PRs, and the skill runs it at the start of every review.
+
+### Requirements
+
+`node` and the GitHub CLI (`gh`). Tailscale and Orca are optional.
+
+### Boundaries
+
+The agent never approves, requests changes, or posts to the PR. The page keeps your choices in the browser's local storage, so clearing it loses them.
 
 ## Credits
 
