@@ -21,6 +21,7 @@ summary{cursor:pointer;color:var(--mut);font-size:12px;margin-top:4px}code{font:
 <h1 id="title"></h1><div class="mut" id="meta"></div>
 <h2>Problem</h2><p id="problem"></p>
 <h2>How this PR solves it</h2><p id="how"></p>
+<div id="swrap"><h2>Shape of the change</h2><pre id="shape"></pre></div>
 <p class="mut" id="verified"></p>
 <h2>Findings <span class="mut" id="count"></span></h2><div id="findings"></div>
 <div id="qwrap"><h2>Questions for you</h2><div id="questions"></div></div>
@@ -39,6 +40,7 @@ $("title").textContent=D.pr.title;
 $("meta").textContent=`${D.pr.head} → ${D.pr.base}${D.pr.size?" · "+D.pr.size:""}`;
 if(D.pr.url){const a=el("a",null,"  open PR");a.href=D.pr.url;$("meta").append(a)}
 $("problem").textContent=D.problem;$("how").textContent=D.how;$("verified").textContent=D.verified||"";
+if(D.shape)$("shape").textContent=D.shape;else $("swrap").hidden=true;
 if(!(D.questions||[]).length)$("qwrap").hidden=true;
 const cards={};
 D.findings.forEach(f=>{
@@ -49,6 +51,7 @@ D.findings.forEach(f=>{
   top.append(a,d);
   const det=el("details"),sm=el("summary",null,"Scenario and fix");
   det.append(sm,el("p",null,"Scenario: "+f.scenario),el("p",null,"Fix: "+f.fix));
+  if(f.shape)det.append(el("pre",null,f.shape));
   const t=el("textarea");t.placeholder="Your comment (optional)";t.value=s.c;t.oninput=()=>{s.c=t.value;save();build()};
   c.append(top,el("p",null,f.defect),det,t);$("findings").append(c);
   function paint(){c.className="card "+s.d;a.setAttribute("aria-pressed",s.d==="approve");d.setAttribute("aria-pressed",s.d==="dismiss")}
@@ -69,6 +72,7 @@ function build(){
   else{
     L.push(`Address review items on ${D.pr.title} (branch ${D.pr.head}) in ${D.repo}. Change nothing beyond the items below. Follow the repo's AGENTS.md.`,"");
     ok.forEach(f=>{L.push(`${f.id} [${f.sev}] ${f.where}`,`  Problem: ${f.defect}`,`  Change: ${f.fix}`);
+      if(f.shape)L.push("  Shape:",...f.shape.split("\n").map(l=>"    "+l));
       if(f.test)L.push(`  Test first: ${f.test}`);
       if(S.f[f.id].c.trim())L.push(`  Reviewer note (takes priority): ${S.f[f.id].c.trim()}`);L.push("")});
     const qa=(D.questions||[]).filter(q=>(S.q[q.id]||"").trim());

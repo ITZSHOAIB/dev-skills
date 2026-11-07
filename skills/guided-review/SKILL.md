@@ -19,7 +19,7 @@ Cost discipline: one PR needs one diff read, a few targeted reads, and one small
 - Read beyond the diff only where a suspicion needs it (a caller, the server behind a client change). No broad exploration, no subagents unless a flag asks for them.
 - Check out the branch and run the narrowest test command from `AGENTS.md`/`package.json`.
 
-Done when each changed file is read and the PR body's test claims are checked against the one command run.
+Done when each changed file is read, the PR body's test claims are checked against the one command run, and, where the body has them, its other claims are checked against the diff: the Summary shape, Special things to note, and Merge Danger (door and blast radius). A claim the diff contradicts, with a scenario, is a finding; a claim too vague to check is a question. What Special things to note lists as deliberately left out is not a defect.
 
 ## 2. Find
 
@@ -27,7 +27,8 @@ At most six candidates, highest severity first; fold extras into one nit. Each h
 - `sev`: `blocking`, `should-fix`, or `nit`;
 - `where`: `path:line`;
 - `defect` (one sentence) and `scenario` (concrete input or state, then wrong behaviour);
-- `fix` and `test` (the check that would catch it first; empty for a nit).
+- `fix` and `test` (the check that would catch it first; empty for a nit);
+- optional `shape`: at most 8 lines placing the defect in the call tree, or sketching the fix. Add it only when it is shorter than the prose it replaces.
 
 A suspicion without a scenario is dropped. A broken repo rule counts. A call only the human can make becomes a question, never a finding.
 
@@ -36,7 +37,7 @@ A suspicion without a scenario is dropped. A broken repo rule counts. A call onl
 Default is the one pass above. Add engines only when the human passes the flag; their output is candidates, so it goes through the same scenario filter and six-finding cap.
 
 - `--deep`: start one subagent on the **Standards** axis of the `code-review` skill (repo docs plus the smell baseline) over the PR diff. Keep its hard violations and any smell that has a scenario; drop the rest.
-- `--cold`: start one fresh subagent given only the diff (no PR body, commits, or conversation) to explain what the change does, what it assumes, and what surprises it, as in the `cold-review` skill's cold read. Verify each surprise against the code before it becomes a finding. Use it for PRs with real design decisions.
+- `--cold`: start one fresh subagent given only the diff (no PR body, commits, or conversation) to explain what the change does, what it assumes, and what surprises it, as in the `cold-review` skill's cold read. Also ask it for one shape view (call tree or diff-sketch) of what the code does; where that differs from the PR's Summary shape, treat the gap as a surprise. Verify each surprise against the code before it becomes a finding. Use it for PRs with real design decisions.
 
 If a named skill is not installed, say so and continue with the one pass. The Spec axis is not used: a PR body is too weak a spec.
 
@@ -49,13 +50,16 @@ Write `data.json` in a scratch folder, then run `node <skill dir>/build.mjs <dat
   "pr": {"title": "", "url": "", "head": "", "base": "", "size": ""},
   "problem": "What this PR solves, 1-2 sentences.",
   "how": "How it solves it, 2-3 sentences.",
+  "shape": "One text view of the change, at most 15 lines.",
   "verified": "Ran: ... Read only: ...",
   "repo": "absolute repo path",
   "commands": "the repo's verify commands",
-  "findings": [{"id": "F1", "sev": "", "where": "", "defect": "", "scenario": "", "fix": "", "test": ""}],
+  "findings": [{"id": "F1", "sev": "", "where": "", "defect": "", "scenario": "", "fix": "", "test": "", "shape": ""}],
   "questions": [{"id": "Q1", "text": ""}]
 }
 ```
+
+`shape` is the change as you read it in the diff, not a copy of the PR's Summary. Pick one view from the `pr` skill's Summary list (pseudocode, call tree, component tree, file tree, or a `diff` sketch of one of these) and choose the smallest that makes the point. Use no Mermaid: the page is self-contained and renders `shape` as plain text.
 
 The page gives the human Approve / Dismiss per finding, a comment box per finding and per question, and a live implementor prompt built from the approved findings with the human's comments attached. The agent does not write that prompt.
 

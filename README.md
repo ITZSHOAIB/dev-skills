@@ -11,12 +11,13 @@
   <a href="#skills">Skills</a> &ensp;·&ensp;
   <a href="#cold-review">Cold Review</a> &ensp;·&ensp;
   <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
+  <a href="#pr">PR</a> &ensp;·&ensp;
   <a href="#credits">Credits</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg" alt="License: MIT"></a>
-  <a href="#skills"><img src="https://img.shields.io/badge/skills-2-6fd3ff.svg" alt="Skills: 2"></a>
+  <a href="#skills"><img src="https://img.shields.io/badge/skills-3-6fd3ff.svg" alt="Skills: 3"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg" alt="Install with npx skills"></a>
 </p>
 
@@ -57,6 +58,7 @@ npx skills remove cold-review -g             # remove a skill
 |---|---|---|
 | [`cold-review`](skills/cold-review/SKILL.md) | Reviews a code change with a reader who has no backstory, plus standards and spec checks, then fixes only what you approve. | `/cold-review main` |
 | [`guided-review`](skills/guided-review/SKILL.md) | Reviews a pull request as a short summary plus findings you approve or dismiss, then builds the fix prompt from your choices. | `/guided-review <PR URL>` |
+| [`pr`](skills/pr/SKILL.md) | Writes a PR body that's fast to review: a diagram of the change, what's deliberate, evidence, and how risky the merge is. | "write the PR body" |
 
 ## Cold Review
 
@@ -145,9 +147,14 @@ The default is one lean pass by the agent. `--deep` adds a Standards review (fro
 ### What you get
 
 - **Problem and approach**: two short paragraphs on what the PR solves and how.
-- **Findings**: at most six, each with a failing scenario and a suggested fix. You press **Approve** or **Dismiss** and can add your own comment.
+- **Shape of the change**: one small call tree, file tree, or diff-sketch of what the diff actually does, drawn from the code rather than copied from the PR body.
+- **Findings**: at most six, each with a failing scenario, a suggested fix, and optionally a few lines of shape that place the defect. You press **Approve** or **Dismiss** and can add your own comment.
 - **Questions**: calls only you can make, each with a box for your answer.
 - **Implementor prompt**: rebuilt live from the findings you approved and your comments, ready to paste into the agent that wrote the PR.
+
+### Checking the PR's own claims
+
+Besides the test claims, the agent checks the PR body's Summary diagram, **Special things to note**, and **Merge Danger** against the diff, when the body has them. A claim the diff contradicts becomes a finding; a claim too vague to check becomes a question. Whatever the body lists as deliberately left out is not reported as a defect. PR bodies written with [`pr`](#pr) have all three sections. With `--cold`, the zero-context reader also draws its own shape of the change, and any gap from the PR's diagram is checked as a surprise.
 
 ### Where reviews live
 
@@ -161,10 +168,24 @@ Each review is stored as `reviews/<owner>-<repo>-pr-<n>.html` inside the install
 
 The agent never approves, requests changes, or posts to the PR. The page keeps your choices in the browser's local storage, so clearing it loses them.
 
+## PR
+
+> A PR body a reviewer can read in a minute.
+
+Fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The body has four sections:
+
+- **Summary**: the smallest diagram that shows the change (pseudocode, call tree, file tree, component tree, or a diff-sketch of one).
+- **Special things to note**: 1-3 bullets on deliberate omissions, migrations, compatibility limits, or surprising decisions, or "None.". Reviewers, and `guided-review`, treat these as intended.
+- **Evidence**: before and after, from screenshots or test runs.
+- **Merge Danger**: one-way or two-way door, and the blast radius.
+
+The agent uses it whenever it writes a PR body. If you also have Matt Pocock's `pr` installed, remove it first (`npx skills remove pr -g`), since both use the same name.
+
 ## Credits
 
 - [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) for the idea of reviewing with zero-context agents.
-- [Matt Pocock's skills](https://github.com/mattpocock/skills) for the two-axis `code-review`.
+- [Matt Pocock's skills](https://github.com/mattpocock/skills) for the two-axis `code-review` and the `pr` skill this repo forks.
+- [HumanLayer's skills](https://github.com/humanlayer/skills): `show-me` for the diagram views in `pr` and in guided-review's shape, and `visual-pr` for the "Special things to note" section.
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills) for installation.
 
 ## License
