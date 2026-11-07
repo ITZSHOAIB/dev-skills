@@ -154,7 +154,7 @@ The default is one lean pass by the agent. `--deep` adds a Standards review (fro
 
 ### Checking the PR's own claims
 
-Besides the test claims, the agent checks the PR body's Summary diagram, **Special things to note**, and **Merge Danger** against the diff, when the body has them. A claim the diff contradicts becomes a finding; a claim too vague to check becomes a question. Whatever the body lists as deliberately left out is not reported as a defect. PR bodies written with [`pr`](#pr) have all three sections. With `--cold`, the zero-context reader also draws its own shape of the change, and any gap from the PR's diagram is checked as a surprise.
+Besides the test claims, the agent checks the PR body's Summary diagram, **Special things to note**, and **Merge Danger** against the diff, when the body has them. A claim the diff contradicts becomes a finding; a claim too vague to check becomes a question. Whatever the body lists as deliberately left out is not reported as a defect. The page lists every claim it checked under **PR claims**, each marked matches, contradicted (linked to its finding), or unclear (linked to its question), so you can see the check ran even when everything matched. PR bodies written with [`pr`](#pr) have all three sections. With `--cold`, the zero-context reader also draws its own shape of the change, and any gap from the PR's diagram is checked as a surprise.
 
 ### Where reviews live
 

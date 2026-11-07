@@ -16,12 +16,16 @@ button[aria-pressed=true].a{background:#2a9d4a;color:#fff;border-color:#2a9d4a}
 button[aria-pressed=true].d{background:var(--mut);color:var(--bg)}
 textarea{width:100%;box-sizing:border-box;margin-top:6px;font:inherit;background:transparent;color:inherit;border:1px solid var(--bd);border-radius:6px;padding:6px;min-height:34px;resize:vertical}
 pre{white-space:pre-wrap;word-break:break-word;border:1px solid var(--bd);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,monospace;margin:6px 0}
+pre.shape{white-space:pre;overflow-x:auto;word-break:normal}
+.claim{display:flex;gap:8px;align-items:baseline;margin:3px 0}.claim b{white-space:nowrap}.st{font-size:11px;padding:0 7px;border-radius:99px;border:1px solid var(--bd);white-space:nowrap}
+.st.matches{border-color:#2a9d4a;color:#2a9d4a}.st.contradicted{border-color:#d33;color:#d33}.st.unclear{border-color:#c80;color:#c80}
 summary{cursor:pointer;color:var(--mut);font-size:12px;margin-top:4px}code{font:12px ui-monospace,monospace}
 </style></head><body>
 <h1 id="title"></h1><div class="mut" id="meta"></div>
 <h2>Problem</h2><p id="problem"></p>
 <h2>How this PR solves it</h2><p id="how"></p>
-<div id="swrap"><h2>Shape of the change</h2><pre id="shape"></pre></div>
+<div id="swrap"><h2>Shape of the change</h2><pre class="shape" id="shape"></pre></div>
+<div id="cwrap"><h2>PR claims</h2><div id="claims"></div></div>
 <p class="mut" id="verified"></p>
 <h2>Findings <span class="mut" id="count"></span></h2><div id="findings"></div>
 <div id="qwrap"><h2>Questions for you</h2><div id="questions"></div></div>
@@ -41,17 +45,20 @@ $("meta").textContent=`${D.pr.head} → ${D.pr.base}${D.pr.size?" · "+D.pr.size
 if(D.pr.url){const a=el("a",null,"  open PR");a.href=D.pr.url;$("meta").append(a)}
 $("problem").textContent=D.problem;$("how").textContent=D.how;$("verified").textContent=D.verified||"";
 if(D.shape)$("shape").textContent=D.shape;else $("swrap").hidden=true;
+if(!(D.claims||[]).length)$("cwrap").hidden=true;
+(D.claims||[]).forEach(c=>{const r=el("div","claim");r.append(el("span","st "+c.status,c.status),el("b",null,c.claim),el("span",null,c.note||""));
+  if(c.ref){const a=el("a",null,c.ref);a.href="#"+c.ref;r.append(a)}$("claims").append(r)});
 if(!(D.questions||[]).length)$("qwrap").hidden=true;
 const cards={};
 D.findings.forEach(f=>{
-  const s=S.f[f.id]=S.f[f.id]||{d:"",c:""},c=el("div","card");cards[f.id]=c;
+  const s=S.f[f.id]=S.f[f.id]||{d:"",c:""},c=el("div","card");c.id=f.id;cards[f.id]=c;
   const top=el("div","row");top.append(el("b",null,f.id),el("span","sev "+f.sev,f.sev),el("code",null,f.where));
   const a=el("button","a","Approve"),d=el("button","d","Dismiss");
   const set=v=>{s.d=s.d===v?"":v;paint();save();build()};a.onclick=()=>set("approve");d.onclick=()=>set("dismiss");
   top.append(a,d);
   const det=el("details"),sm=el("summary",null,"Scenario and fix");
   det.append(sm,el("p",null,"Scenario: "+f.scenario),el("p",null,"Fix: "+f.fix));
-  if(f.shape)det.append(el("pre",null,f.shape));
+  if(f.shape)det.append(el("pre","shape",f.shape));
   const t=el("textarea");t.placeholder="Your comment (optional)";t.value=s.c;t.oninput=()=>{s.c=t.value;save();build()};
   c.append(top,el("p",null,f.defect),det,t);$("findings").append(c);
   function paint(){c.className="card "+s.d;a.setAttribute("aria-pressed",s.d==="approve");d.setAttribute("aria-pressed",s.d==="dismiss")}
@@ -60,7 +67,7 @@ D.findings.forEach(f=>{
 const qs=[];(D.questions||[]).forEach(q=>{
   const t=el("textarea");t.value=S.q[q.id]||"";t.placeholder="Your answer";
   t.oninput=()=>{S.q[q.id]=t.value;save();build()};
-  const w=el("div","card");w.append(el("p",null,q.id+" · "+q.text),t);$("questions").append(w);
+  const w=el("div","card");w.id=q.id;w.append(el("p",null,q.id+" · "+q.text),t);$("questions").append(w);
 });
 $("overall").value=S.overall;$("overall").oninput=e=>{S.overall=e.target.value;save();build()};
 function build(){
