@@ -2,89 +2,115 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Guided review</title>
 <style>
-:root{color-scheme:light dark;--bg:var(--background,Canvas);--fg:var(--foreground,CanvasText);--bd:var(--border,#8884);--mut:var(--muted-foreground,#888)}
-body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif;max-width:860px}
-h1{font-size:18px;margin:0 0 2px}h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:20px 0 6px}
-a{color:inherit}.mut{color:var(--mut);font-size:12px}p{margin:4px 0}
-.card{border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin:8px 0}
-.card.approve{border-color:#2a9d4a}.card.dismiss{opacity:.55}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.sev{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--bd)}
-.sev.blocking{border-color:#d33;color:#d33}.sev.should-fix{border-color:#c80;color:#c80}
-button{font:inherit;padding:3px 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:inherit;cursor:pointer}
-button[aria-pressed=true].a{background:#2a9d4a;color:#fff;border-color:#2a9d4a}
-button[aria-pressed=true].d{background:var(--mut);color:var(--bg)}
-textarea{width:100%;box-sizing:border-box;margin-top:6px;font:inherit;background:transparent;color:inherit;border:1px solid var(--bd);border-radius:6px;padding:6px;min-height:34px;resize:vertical}
-pre{white-space:pre-wrap;word-break:break-word;border:1px solid var(--bd);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,monospace;margin:6px 0}
+:root{color-scheme:light dark;--bg:var(--background,Canvas);--fg:var(--foreground,CanvasText);--bd:var(--border,#8884);--mut:var(--muted-foreground,#888);
+  --ok:#2a9d4a;--red:#d33;--amb:#c80;--add:#2a9d4a22;--del:#d3333322}
+*{box-sizing:border-box}
+body{margin:0 auto;padding:16px 16px 0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,sans-serif;max-width:860px}
+h1{font-size:19px;line-height:1.3;margin:0 0 4px}h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin:24px 0 8px}
+a{color:inherit}.row code{overflow-wrap:anywhere}.mut{color:var(--mut);font-size:13px}p{margin:4px 0}code{font:13px ui-monospace,monospace}
+.strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.card{border:1px solid var(--bd);border-left:4px solid var(--bd);border-radius:8px;padding:12px 14px;margin:10px 0;outline:none}
+.card.blocking{border-left-color:var(--red)}.card.should-fix{border-left-color:var(--amb)}
+.card:focus-visible{box-shadow:0 0 0 2px var(--mut)}
+.card.approve{border-color:var(--ok);border-left-color:var(--ok)}
+.card.dismiss .body{opacity:.5}
+.row{min-width:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid var(--bd);white-space:nowrap}
+.pill.blocking{border-color:var(--red);color:var(--red)}.pill.should-fix{border-color:var(--amb);color:var(--amb)}
+.pill.dismissed{background:var(--mut);color:var(--bg);border-color:var(--mut)}
+.acts{display:flex;gap:8px;margin-left:auto}
+button{font:inherit;min-height:44px;padding:6px 16px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:inherit;cursor:pointer}
+button[aria-pressed=true].a{background:var(--ok);color:#fff;border-color:var(--ok)}
+button[aria-pressed=true].d{background:var(--mut);color:var(--bg);border-color:var(--mut)}
+textarea{width:100%;margin-top:8px;font:inherit;background:transparent;color:inherit;border:1px solid var(--bd);border-radius:8px;padding:8px;min-height:44px;resize:vertical}
+pre{white-space:pre-wrap;word-break:break-word;border:1px solid var(--bd);border-radius:8px;padding:10px;font:12.5px/1.5 ui-monospace,monospace;margin:8px 0}
 pre.shape{white-space:pre;overflow-x:auto;word-break:normal}
-.claim{display:flex;gap:8px;align-items:baseline;margin:3px 0}.claim b{white-space:nowrap}.st{font-size:11px;padding:0 7px;border-radius:99px;border:1px solid var(--bd);white-space:nowrap}
-.st.matches{border-color:#2a9d4a;color:#2a9d4a}.st.contradicted{border-color:#d33;color:#d33}.st.unclear{border-color:#c80;color:#c80}
-summary{cursor:pointer;color:var(--mut);font-size:12px;margin-top:4px}code{font:12px ui-monospace,monospace}
+pre.shape span{display:block}pre.shape .add{background:var(--add);color:var(--ok)}pre.shape .del{background:var(--del);color:var(--red)}
+.claim{display:flex;gap:8px;align-items:baseline;margin:6px 0}.claim b{white-space:nowrap}
+.st.matches{border-color:var(--ok);color:var(--ok)}.st.contradicted{border-color:var(--red);color:var(--red)}.st.unclear,.st.unverified{border-color:var(--amb);color:var(--amb)}
+.lbl{font-weight:600}
+summary{cursor:pointer;color:var(--mut);font-size:13px;margin-top:6px;min-height:28px}
+.bar{position:sticky;bottom:0;display:flex;gap:10px;align-items:center;padding:10px 0;margin-top:16px;background:var(--bg);border-top:1px solid var(--bd)}
+.bar #copy{margin-left:auto;white-space:nowrap}#saved{transition:opacity .4s;opacity:0}#saved.on{opacity:1}
+@media (max-width:600px){.acts{width:100%;margin-left:0}.acts button{flex:1}.claim{flex-wrap:wrap}}
 </style></head><body>
-<h1 id="title"></h1><div class="mut" id="meta"></div>
+<h1 id="title"></h1><div class="mut" id="meta"></div><div class="strip" id="strip"></div>
 <h2>Problem</h2><p id="problem"></p>
 <h2>How this PR solves it</h2><p id="how"></p>
 <div id="swrap"><h2>Shape of the change</h2><pre class="shape" id="shape"></pre></div>
 <div id="cwrap"><h2>PR claims</h2><div id="claims"></div></div>
 <p class="mut" id="verified"></p>
-<h2>Findings <span class="mut" id="count"></span></h2><div id="findings"></div>
+<h2>Findings <span class="mut" id="keys"></span></h2><div id="findings"></div>
 <div id="qwrap"><h2>Questions for you</h2><div id="questions"></div></div>
 <h2>Anything else for the implementor?</h2><textarea id="overall" placeholder="Optional"></textarea>
 <h2>Prompt for the implementor <span class="mut" id="pstate"></span></h2>
-<pre id="prompt"></pre><button id="copy">Copy prompt</button>
+<pre id="prompt"></pre>
+<div class="bar"><span class="mut" id="count"></span><span class="mut" id="saved">saved</span><button id="copy">Copy prompt</button></div>
 <script type="application/json" id="data">__DATA__</script>
 <script>
 const D=JSON.parse(document.getElementById("data").textContent),$=id=>document.getElementById(id);
-const KEY="guided-review:"+(D.pr.url||D.pr.title);let S={};
+const KEY="guided-review:"+(D.pr.url||D.pr.title)+":"+(D.builtAt||"");let S={};
 try{S=JSON.parse(localStorage.getItem(KEY)||"{}")}catch{}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch{}};
+let tick;const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch{}
+  $("saved").classList.add("on");clearTimeout(tick);tick=setTimeout(()=>$("saved").classList.remove("on"),900)};
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const shape=text=>{const p=el("pre","shape");text.split("\n").forEach(l=>p.append(el("span",l[0]==="+"?"add":l[0]==="-"?"del":"",l||" ")));return p};
+const labelled=(k,v)=>{const p=el("p");p.append(el("span","lbl",k+": "),v);return p};
 S.f=S.f||{};S.q=S.q||{};S.overall=S.overall||"";
 $("title").textContent=D.pr.title;
-$("meta").textContent=`${D.pr.head} → ${D.pr.base}${D.pr.size?" · "+D.pr.size:""}`;
-if(D.pr.url){const a=el("a",null,"  open PR");a.href=D.pr.url;$("meta").append(a)}
+$("meta").textContent=`${D.pr.head} → ${D.pr.base}${D.pr.size?" · "+D.pr.size:""}${D.builtAt?" · built "+new Date(D.builtAt).toLocaleString():""} · `;
+if(D.pr.url){const a=el("a",null,"open PR");a.href=D.pr.url;$("meta").append(a)}
+["blocking","should-fix","nit"].forEach(s=>{const n=D.findings.filter(f=>f.sev===s).length;if(n)$("strip").append(el("span","pill "+s,`${n} ${s}`))});
+if(!D.findings.length)$("strip").append(el("span","pill","no findings"));
 $("problem").textContent=D.problem;$("how").textContent=D.how;$("verified").textContent=D.verified||"";
-if(D.shape)$("shape").textContent=D.shape;else $("swrap").hidden=true;
+if(D.shape)$("swrap").replaceChild(shape(D.shape),$("shape"));else $("swrap").hidden=true;
 if(!(D.claims||[]).length)$("cwrap").hidden=true;
-(D.claims||[]).forEach(c=>{const r=el("div","claim");r.append(el("span","st "+c.status,c.status),el("b",null,c.claim),el("span",null,c.note||""));
+(D.claims||[]).forEach(c=>{const r=el("div","claim");r.append(el("span","pill st "+c.status,c.status),el("b",null,c.claim),el("span",null,c.note||""));
   if(c.ref){const a=el("a",null,c.ref);a.href="#"+c.ref;r.append(a)}$("claims").append(r)});
 if(!(D.questions||[]).length)$("qwrap").hidden=true;
-const cards={};
+const cards=[];
 D.findings.forEach(f=>{
-  const s=S.f[f.id]=S.f[f.id]||{d:"",c:""},c=el("div","card");c.id=f.id;cards[f.id]=c;
-  const top=el("div","row");top.append(el("b",null,f.id),el("span","sev "+f.sev,f.sev),el("code",null,f.where));
-  const a=el("button","a","Approve"),d=el("button","d","Dismiss");
+  const s=S.f[f.id]=S.f[f.id]||{d:"",c:""},c=el("div","card "+f.sev);c.id=f.id;c.tabIndex=0;
+  const top=el("div","row"),w=el("a",null);w.append(el("code",null,f.where));if(D.pr.url)w.href=D.pr.url+"/files";w.target="_blank";
+  const tag=el("span","pill dismissed","dismissed");
+  top.append(el("b",null,f.id),el("span","pill "+f.sev,f.sev),w,tag);
+  const a=el("button","a","Approve"),d=el("button","d","Dismiss"),acts=el("div","acts");acts.append(a,d);
   const set=v=>{s.d=s.d===v?"":v;paint();save();build()};a.onclick=()=>set("approve");d.onclick=()=>set("dismiss");
-  top.append(a,d);
-  const det=el("details"),sm=el("summary",null,"Scenario and fix");
-  det.append(sm,el("p",null,"Scenario: "+f.scenario),el("p",null,"Fix: "+f.fix));
-  if(f.shape)det.append(el("pre","shape",f.shape));
+  const body=el("div","body"),det=el("details");det.append(el("summary",null,f.shape?"Fix and shape":"Fix"),labelled("Fix",f.fix));
+  if(f.test)det.append(labelled("Test first",f.test));if(f.shape)det.append(shape(f.shape));
+  body.append(el("p",null,f.defect),labelled("Scenario",f.scenario),det);
   const t=el("textarea");t.placeholder="Your comment (optional)";t.value=s.c;t.oninput=()=>{s.c=t.value;save();build()};
-  c.append(top,el("p",null,f.defect),det,t);$("findings").append(c);
-  function paint(){c.className="card "+s.d;a.setAttribute("aria-pressed",s.d==="approve");d.setAttribute("aria-pressed",s.d==="dismiss")}
-  paint();
+  top.append(acts);c.append(top,body,t);$("findings").append(c);
+  function paint(){c.className=`card ${f.sev} ${s.d}`;tag.hidden=s.d!=="dismiss";a.setAttribute("aria-pressed",s.d==="approve");d.setAttribute("aria-pressed",s.d==="dismiss")}
+  c.set=set;cards.push(c);paint();
 });
-const qs=[];(D.questions||[]).forEach(q=>{
+if(cards.length&&matchMedia("(hover:hover)").matches)$("keys").textContent="· j/k move · a/d approve/dismiss";
+(D.questions||[]).forEach(q=>{
   const t=el("textarea");t.value=S.q[q.id]||"";t.placeholder="Your answer";
   t.oninput=()=>{S.q[q.id]=t.value;save();build()};
   const w=el("div","card");w.id=q.id;w.append(el("p",null,q.id+" · "+q.text),t);$("questions").append(w);
 });
 $("overall").value=S.overall;$("overall").oninput=e=>{S.overall=e.target.value;save();build()};
+document.addEventListener("keydown",e=>{
+  if(e.target.matches("textarea,input")||e.metaKey||e.ctrlKey||e.altKey||!cards.length)return;
+  const i=cards.indexOf(document.activeElement);
+  if(e.key==="j"||e.key==="k"){const n=i<0?0:Math.min(cards.length-1,Math.max(0,i+(e.key==="j"?1:-1)));cards[n].focus();cards[n].scrollIntoView({block:"nearest"})}
+  else if(i>=0&&(e.key==="a"||e.key==="d"))cards[i].set(e.key==="a"?"approve":"dismiss");
+});
 function build(){
   const ok=D.findings.filter(f=>S.f[f.id].d==="approve"),und=D.findings.filter(f=>!S.f[f.id].d).length;
   $("count").textContent=`${ok.length} approved · ${D.findings.length-ok.length-und} dismissed · ${und} undecided`;
   $("pstate").textContent=und?`(${und} undecided are left out)`:"";
-  const L=[];
-  if(!ok.length){L.push(`Review of ${D.pr.title} (branch ${D.pr.head}): no changes requested.`)}
+  const qa=(D.questions||[]).filter(q=>(S.q[q.id]||"").trim()),note=S.overall.trim(),L=[];
+  if(!ok.length&&!qa.length&&!note){L.push(`Review of ${D.pr.title} (branch ${D.pr.head}): no changes requested.`)}
   else{
     L.push(`Address review items on ${D.pr.title} (branch ${D.pr.head}) in ${D.repo}. Change nothing beyond the items below. Follow the repo's AGENTS.md.`,"");
     ok.forEach(f=>{L.push(`${f.id} [${f.sev}] ${f.where}`,`  Problem: ${f.defect}`,`  Change: ${f.fix}`);
       if(f.shape)L.push("  Shape:",...f.shape.split("\n").map(l=>"    "+l));
       if(f.test)L.push(`  Test first: ${f.test}`);
       if(S.f[f.id].c.trim())L.push(`  Reviewer note (takes priority): ${S.f[f.id].c.trim()}`);L.push("")});
-    const qa=(D.questions||[]).filter(q=>(S.q[q.id]||"").trim());
-    if(qa.length){L.push("Reviewer answers:");qa.forEach(q=>L.push(`  ${q.id} (${q.text}): ${S.q[q.id].trim()}`));L.push("")}
-    if(S.overall.trim())L.push("Also: "+S.overall.trim(),"");
+    if(qa.length){L.push("Reviewer answers (act on any that ask for a change):");qa.forEach(q=>L.push(`  ${q.id} (${q.text}): ${S.q[q.id].trim()}`));L.push("")}
+    if(note)L.push("Also: "+note,"");
     L.push(`Run: ${D.commands}. Commit with a conventional message and push to the same branch.`);
   }
   $("prompt").textContent=L.join("\n");

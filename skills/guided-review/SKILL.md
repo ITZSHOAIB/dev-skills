@@ -51,7 +51,7 @@ Write `data.json` in a scratch folder, then run `node <skill dir>/build.mjs <dat
   "problem": "What this PR solves, 1-2 sentences.",
   "how": "How it solves it, 2-3 sentences.",
   "shape": "One text view of the change, at most 15 lines.",
-  "claims": [{"claim": "Tests | Summary | Special things to note | Merge Danger", "status": "matches | contradicted | unclear", "note": "one line", "ref": "F1 or Q1, empty for matches"}],
+  "claims": [{"claim": "Tests | Summary | Special things to note | Merge Danger", "status": "matches | contradicted | unclear | unverified", "note": "one line", "ref": "F1 or Q1, empty for matches"}],
   "verified": "Ran: ... Read only: ...",
   "repo": "absolute repo path",
   "commands": "the repo's verify commands",
@@ -60,9 +60,9 @@ Write `data.json` in a scratch folder, then run `node <skill dir>/build.mjs <dat
 }
 ```
 
-`shape` is the change as you read it in the diff, not a copy of the PR's Summary. Pick one view from the `pr` skill's Summary list (pseudocode, call tree, component tree, file tree, or a `diff` sketch of one of these) and choose the smallest that makes the point. Use no Mermaid: the page is self-contained and renders `shape` as plain text without wrapping, so keep lines under about 45 characters so they fit a phone screen.
+`shape` is the change as you read it in the diff, not a copy of the PR's Summary. Pick one view from the `pr` skill's Summary list (pseudocode, call tree, component tree, file tree, or a `diff` sketch of one of these) and choose the smallest that makes the point. Use no Mermaid: the page is self-contained and renders `shape` as plain text without wrapping, so keep lines under about 45 characters so they fit a phone screen. In a `diff` sketch, put `+` or `-` in the first column: the page colours those lines.
 
-`claims` has one entry per claim the PR body makes, in the order above; leave out sections the body does not have. A `contradicted` claim points at its finding and an `unclear` one at its question.
+`claims` has one entry per claim the PR body makes, in the order above; leave out sections the body does not have. A `contradicted` claim points at its finding and an `unclear` one at its question. A claim this run could not re-check (a full-suite count, a CI result) is `unverified`, not `matches`.
 
 The page gives the human Approve / Dismiss per finding, a comment box per finding and per question, and a live implementor prompt built from the approved findings with the human's comments attached. The agent does not write that prompt.
 

@@ -16,6 +16,7 @@ const slug = `${match[1]}-${match[2]}-pr-${match[3]}`.toLowerCase();
 
 const reviews = join(skillDir, "reviews");
 mkdirSync(reviews, { recursive: true });
+review.builtAt = new Date().toISOString();
 const json = JSON.stringify(review);
 const template = readFileSync(join(skillDir, "template.html"), "utf8");
 writeFileSync(join(reviews, `${slug}.json`), json);
