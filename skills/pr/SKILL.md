@@ -12,6 +12,8 @@ metadata:
 Use this template for writing the PR body:
 
 ```markdown
+Closes #<issue> <!-- or "Part of #<epic>"; omit if there is no issue -->
+
 ## Summary
 
 <diagram, diff-sketch, or tree>
@@ -166,6 +168,8 @@ What a reviewer would otherwise flag or miss: deliberate omissions (work left fo
 ### Evidence
 
 Concrete evidence that the change works. Show a before and after.
+
+When there is no behavior to run (docs-only, config, pure refactor), show the project's check output staying green, or write `None.`
 
 Screenshots are S-tier - when the environment is set up for it and the change is visual.
 
