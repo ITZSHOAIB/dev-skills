@@ -243,15 +243,15 @@ Fresh, read-only readers go through your documentation as someone who has just h
 
 ```mermaid
 flowchart LR
-    A[Pin pages,<br/>persona and task] --> B["Two readers<br/>start on different pages"]
-    B --> C{Verify each gap<br/>against the source}
+    A["Pin pages,<br/>persona and task"] --> B["Two readers<br/>start on different pages"]
+    B --> C{"Verify each gap<br/>against the source"}
     C -->|Real| D[You approve fixes]
     C -->|Not real| X[Dropped]
     C -->|Needs a run| W[Hand to Cold Walkthrough]
     D --> E[One fix change]
-    E --> F[New readers re-read<br/>the changed pages]
+    E --> F["New readers re-read<br/>the changed pages"]
     F -->|"new Blocker or Major"| B
-    F -->|"clean, or 3 rounds"| G[Report and<br/>implementor prompt]
+    F -->|"clean, or 3 rounds"| G["Report and<br/>implementor prompt"]
 ```
 
 Each reader reports under fixed headings: what they understood, where they got stuck (Blocker, Major or Nit), contradictions, undefined terms, how they read the pages, and whether they could finish. Two readers who hit the same gap independently count for more than one.
@@ -283,14 +283,14 @@ Fresh testers install and use your product from only its public materials, in an
 ```mermaid
 flowchart LR
     A["Pin entry point,<br/>persona, outcome<br/>and versions"] --> B["Two testers run it<br/>in empty directories"]
-    B --> C{Verify each claim<br/>against the source}
+    B --> C{"Verify each claim<br/>against the source"}
     C -->|Real| D[You approve fixes]
     C -->|"Fixed on main,<br/>not released"| R[One release-gap finding]
     C -->|"Tester error<br/>or invented"| X[Dropped]
     D --> E[One fix change]
     E --> F["New testers re-run<br/>and compare minutes"]
     F -->|"new Blocker or Major"| B
-    F -->|"clean, or 3 rounds"| G[Clean up, report,<br/>implementor prompt]
+    F -->|"clean, or 3 rounds"| G["Clean up, report,<br/>implementor prompt"]
 ```
 
 **Safe by design.** Testers never ask for or paste secrets or keys, and stop at any step that needs one. Each works in its own directory outside your repository, so your source and instruction files can't leak in. They write down the shell and OS they used, so a bash-only command in your docs shows up as a finding.
