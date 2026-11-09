@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg" alt="License: MIT"></a>
-  <a href="#skills"><img src="https://img.shields.io/badge/skills-3-6fd3ff.svg" alt="Skills: 3"></a>
+  <a href="#skills"><img src="https://img.shields.io/badge/skills-5-6fd3ff.svg" alt="Skills: 5"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg" alt="Install with npx skills"></a>
 </p>
 
@@ -58,6 +58,8 @@ npx skills remove cold-review -g             # remove a skill
 |---|---|---|
 | [`cold-review`](skills/cold-review/SKILL.md) | Reviews a code change with a reader who has no backstory, plus standards and spec checks, then fixes only what you approve. | `/cold-review main` |
 | [`guided-review`](skills/guided-review/SKILL.md) | Reviews a pull request as a short summary plus findings you approve or dismiss, then builds the fix prompt from your choices. | `/guided-review <PR URL>` |
+| [`cold-docs`](skills/cold-docs/SKILL.md) | Audits documentation with fresh readers who know nothing about the project, checks each gap against the source, and fixes the real ones. | `/cold-docs https://example.com/docs` |
+| [`cold-walkthrough`](skills/cold-walkthrough/SKILL.md) | Has fresh testers install and use a product from only its public materials, timed, as a developer or as a coding agent, then fixes the real gaps. | `/cold-walkthrough <docs URL or package>` |
 | [`pr`](skills/pr/SKILL.md) | Writes a PR body that's fast to review: a diagram of the change, what's deliberate, evidence, and how risky the merge is. | "write the PR body" |
 
 ## Cold Review
@@ -167,6 +169,29 @@ Each review is stored as `reviews/<owner>-<repo>-pr-<n>.html` inside the install
 ### Boundaries
 
 The agent never approves, requests changes, or posts to the PR. The page keeps your choices in the browser's local storage, so clearing it loses them.
+
+## Cold Docs and Cold Walkthrough
+
+> Docs that make sense to their author can still lose every newcomer.
+
+Both skills send fresh subagents with no context, then check what they report against the source before anything is fixed. A tester can be wrong, so invented gaps are dropped.
+
+| | `cold-docs` | `cold-walkthrough` |
+|---|---|---|
+| **Question** | Can a newcomer understand and follow these pages? | Can a newcomer, or a coding agent given only a URL, get a working result? |
+| **Testers** | Read-only | Shell, an empty directory, a time-box, no secrets |
+| **Cost** | Cheap, so run it on any docs change | Heavier, so run it before a release or after changing install, scaffolding, the CLI or error messages |
+| **Works on** | Any project with docs | Products that install and run |
+| **Finds** | Missing steps, contradictions, undefined terms | Those, plus failing commands, unhelpful errors, and whether a coding agent succeeds |
+
+```text
+/cold-docs https://example.com/docs
+/cold-walkthrough https://example.com/docs/quickstart
+```
+
+Each runs two testers, verifies every claim, groups the real gaps into one fix, and re-tests with brand-new testers until a round finds no new Blocker or Major gap, or after three rounds. Both end with a copyable prompt for an implementing agent.
+
+Both need an agent that can start fresh subagents, such as Claude Code. `cold-walkthrough` runs real commands, so it needs a task that is reachable without secrets. Each tester gets its own empty directory outside your repository.
 
 ## PR
 
