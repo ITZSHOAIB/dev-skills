@@ -12,13 +12,14 @@
   <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
   <a href="#cold-docs">Cold Docs</a> &ensp;·&ensp;
   <a href="#cold-walkthrough">Cold Walkthrough</a> &ensp;·&ensp;
+  <a href="#to-epics">To Epics</a> &ensp;·&ensp;
   <a href="#pr">PR</a> &ensp;·&ensp;
   <a href="#faq">FAQ</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-5-6fd3ff.svg?style=flat-square" alt="Skills: 5"></a>
+  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-6-6fd3ff.svg?style=flat-square" alt="Skills: 6"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg?style=flat-square" alt="Install with npx skills"></a>
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-f59e0b.svg?style=flat-square" alt="Works with Claude Code">
   <img src="https://img.shields.io/badge/dependencies-none-4ade80.svg?style=flat-square" alt="No dependencies">
@@ -26,7 +27,7 @@
 
 <br>
 
-AI agents write code faster than anyone can check it, and docs faster than anyone can test them. These skills add the checks that speed skips. Each one hands a job to a **fresh agent with no backstory**, verifies what it reports, and then stops and asks you before changing anything.
+AI agents write code faster than anyone can check it, and docs faster than anyone can test them. These skills add checks and planning that speed skips. Some send a job to a **fresh agent with no backstory**; others turn a project plan into coordinated issues. Each verifies the evidence it handles and returns decisions to you before changing source files or publishing issues.
 
 > [!TIP]
 > New here? Run `npx skills add ITZSHOAIB/dev-skills -g`, start a new agent session, then try `/cold-review main` on a branch you are about to merge.
@@ -39,7 +40,7 @@ AI agents write code faster than anyone can check it, and docs faster than anyon
 npx skills add ITZSHOAIB/dev-skills -g
 ```
 
-That installs all five skills globally. Start a new agent session afterwards so they are picked up.
+That installs all six skills globally. Start a new agent session afterwards so they are picked up.
 
 <details>
 <summary><b>Install one skill, install per project, update, list, or remove</b></summary>
@@ -66,13 +67,14 @@ That installs all five skills globally. Start a new agent session afterwards so 
 | **Review someone else's PR** and want to make the calls yourself | [Guided Review](#guided-review) | `/guided-review <PR URL>` |
 | **Change docs**, or wonder if they make sense to a newcomer | [Cold Docs](#cold-docs) | `/cold-docs <docs URL or folder>` |
 | **Ship a release**, or change install, scaffolding, the CLI or its errors | [Cold Walkthrough](#cold-walkthrough) | `/cold-walkthrough <docs URL or package>` |
+| **Plan a project as a small set of prioritized, dependency-aware epics** | [To Epics](#to-epics) | `/to-epics <PRD or roadmap>` |
 | **Open a PR** and want a body that reviews fast | [PR](#pr) | "write the PR body" |
 
 ---
 
 ## The idea
 
-Every skill here uses the same two roles, borrowed from the [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model).
+The review skills use the same two roles, borrowed from the [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model).
 
 ```mermaid
 flowchart LR
@@ -97,6 +99,7 @@ flowchart LR
 | [`guided-review`](#guided-review) | A pull request | Read | Low to medium | When you are the reviewer |
 | [`cold-docs`](#cold-docs) | Documentation | Read | Low | On any docs change |
 | [`cold-walkthrough`](#cold-walkthrough) | A whole product | Read and run | High | Before a release |
+| [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
 | [`pr`](#pr) | Your own PR body | None | Minimal | Every time you open a PR |
 
 ---
@@ -320,6 +323,23 @@ flowchart LR
 
 ---
 
+## To Epics
+
+> A short issue list can still give implementors everything they need.
+
+To Epics turns a PRD, roadmap, or project discussion into a compact map of domain epics. Work that can be built together or in parallel stays as checklist slices inside the epic, so every task does not become a separate issue. Each epic gets a priority, milestone, real blocking links, implementation scope, acceptance checks, verification, and a completion condition.
+
+```text
+/to-epics docs/prd.md
+/to-epics "Plan the migration to the new API"
+```
+
+It reads the current repository and issue tracker, checks existing work for duplicates, and shows you the proposed domains, priorities, slices, and dependency waves. It only creates or edits issues after you approve the concrete map. Slices stay in the epic unless separate discussion, ownership, or outside contribution justifies a sub-issue.
+
+**Needs:** `gh` authenticated for the target GitHub repository. It does not use subagents.
+
+---
+
 ## PR
 
 > A PR body a reviewer can read in a minute.
@@ -345,7 +365,7 @@ A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The 
 
 <br>
 
-Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The four `cold-` and `guided-` skills also need to start fresh subagents, which Claude Code can. `pr` has no such requirement.
+Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The four `cold-` and `guided-` skills also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
 
 </details>
 
@@ -354,7 +374,7 @@ Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills
 
 <br>
 
-No. Every skill stops after triage and waits for you to choose what to fix. `guided-review` never approves, requests changes, or posts to the PR.
+No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `guided-review` never approves, requests changes, or posts to the PR.
 
 </details>
 
@@ -363,7 +383,7 @@ No. Every skill stops after triage and waits for you to choose what to fix. `gui
 
 <br>
 
-Each skill starts several subagents, so they use more tokens than a single review. `pr` is negligible, `cold-docs` is low, `cold-review` and `guided-review` are medium (`--deep` and `--cold` add about 40k tokens each), and `cold-walkthrough` is the highest because testers run real commands.
+The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `cold-docs` is low, `cold-review` and `guided-review` are medium (`--deep` and `--cold` add about 40k tokens each), and `cold-walkthrough` is the highest because testers run real commands.
 
 </details>
 
