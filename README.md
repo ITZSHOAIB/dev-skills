@@ -7,13 +7,13 @@
 <p align="center">
   <a href="#install">Install</a> &ensp;·&ensp;
   <a href="#which-skill-do-i-need">Which skill?</a> &ensp;·&ensp;
-  <a href="#the-idea">The idea</a> &ensp;·&ensp;
+  <a href="#the-workflow">The workflow</a> &ensp;·&ensp;
+  <a href="#to-epics">To Epics</a> &ensp;·&ensp;
   <a href="#ship">Ship</a> &ensp;·&ensp;
+  <a href="#pr">PR</a> &ensp;·&ensp;
   <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
   <a href="#cold-docs">Cold Docs</a> &ensp;·&ensp;
   <a href="#cold-walkthrough">Cold Walkthrough</a> &ensp;·&ensp;
-  <a href="#to-epics">To Epics</a> &ensp;·&ensp;
-  <a href="#pr">PR</a> &ensp;·&ensp;
   <a href="#faq">FAQ</a>
 </p>
 
@@ -22,15 +22,14 @@
   <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-6-6fd3ff.svg?style=flat-square" alt="Skills: 6"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg?style=flat-square" alt="Install with npx skills"></a>
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-f59e0b.svg?style=flat-square" alt="Works with Claude Code">
-  <img src="https://img.shields.io/badge/dependencies-none-4ade80.svg?style=flat-square" alt="No dependencies">
 </p>
 
 <br>
 
-AI agents write code faster than anyone can check it, and docs faster than anyone can test them. These skills add checks and planning that speed skips. Some send a job to a **fresh agent with no backstory**; others turn a project plan into coordinated issues. Each verifies the evidence it handles and returns decisions to you before changing source files or publishing issues.
+AI agents write code faster than anyone can check it, and docs faster than anyone can test them. These skills cover the loop around that speed: **plan** the work, **build** it on its own branch, **review** it, and **test the docs** before a release. The agent does the legwork and verifies its own evidence. You make the calls, and nothing is posted, marked ready, or merged without you.
 
 > [!TIP]
-> New here? Run `npx skills add ITZSHOAIB/dev-skills -g`, start a new agent session, then try `/guided-review main` on a branch you are about to merge.
+> New here? Run `npx skills add ITZSHOAIB/dev-skills -g`, start a new agent session, then try `/ship "<a small task>" --no-pr` to build something, or `/guided-review main` on a branch you are about to merge.
 
 ---
 
@@ -63,19 +62,31 @@ That installs all six skills globally, plus `cold-review` as an alias for `guide
 
 | You are about to… | Use | Run it with |
 |---|---|---|
+| **Plan a project as a small set of prioritized, dependency-aware epics** | [To Epics](#to-epics) | `/to-epics <PRD or roadmap>` |
 | **Build a ticket or issue** and get a draft PR | [Ship](#ship) | `/ship #42` |
+| **Open a PR** and want a body that reviews fast | [PR](#pr) | "write the PR body" |
 | **Merge your own change** and want a fresh pair of eyes first | [Guided Review](#guided-review) | `/guided-review main` |
 | **Review someone else's PR** and want to make the calls yourself | [Guided Review](#guided-review) | `/guided-review <PR URL>` |
 | **Change docs**, or wonder if they make sense to a newcomer | [Cold Docs](#cold-docs) | `/cold-docs <docs URL or folder>` |
-| **Ship a release**, or change install, scaffolding, the CLI or its errors | [Cold Walkthrough](#cold-walkthrough) | `/cold-walkthrough <docs URL or package>` |
-| **Plan a project as a small set of prioritized, dependency-aware epics** | [To Epics](#to-epics) | `/to-epics <PRD or roadmap>` |
-| **Open a PR** and want a body that reviews fast | [PR](#pr) | "write the PR body" |
+| **Cut a release**, or change install, scaffolding, the CLI or its errors | [Cold Walkthrough](#cold-walkthrough) | `/cold-walkthrough <docs URL or package>` |
 
 ---
 
-## The idea
+## The workflow
 
-The review skills use the same two roles, borrowed from the [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model).
+```mermaid
+flowchart LR
+    P["Plan<br/><b>to-epics</b>"] --> B["Build<br/><b>ship</b>"]
+    B -->|"draft PR,<br/>body by <b>pr</b>"| R["Review<br/><b>guided-review</b>"]
+    R -->|"you merge"| L["Release<br/><b>cold-docs</b><br/><b>cold-walkthrough</b>"]
+```
+
+The skills share four rules:
+
+- **The agent does the legwork; you make the calls.** Issue maps, fixes, and grilled decisions wait for your approval.
+- **Every finding is verified.** A report needs a concrete scenario and is checked against the source before it reaches you. Invented problems are dropped.
+- **Nothing goes out without you.** No skill approves a PR, posts review comments, marks a PR ready, or merges.
+- **Fresh eyes where context blinds.** The cold skills, and guided-review's `cold` lens, borrow two roles from the [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model):
 
 ```mermaid
 flowchart LR
@@ -86,22 +97,37 @@ flowchart LR
     V -->|"no"| D["Dropped"]
 ```
 
-- **The goldfish** sees the code, the docs, or the product, and nothing about why they exist. Where it gets confused, a newcomer will too.
-- **The elephant** holds the context. It checks each report against the source, because a goldfish can be wrong, and drops the invented problems.
-- **You** are the last step. No skill changes your code or docs until you choose what to fix.
+The goldfish sees the code, the docs, or the product, and nothing about why they exist: where it gets confused, a newcomer will too. The elephant holds the context and checks each report against the source, because a goldfish can be wrong.
 
 ---
 
 ## Skills at a glance
 
-| Skill | Looks at | Tester can | Cost | Best moment |
+| Skill | Takes | Can touch | Cost | Best moment |
 |---|---|---|---|---|
-| [`ship`](#ship) | An issue, ticket, or spec | Edits code, pushes a branch, opens a draft PR; posts decisions with approval | Medium to high | When a ticket is ready to build |
+| [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
+| [`ship`](#ship) | An issue, ticket, or spec | Edits code, pushes a branch, opens a draft PR; posts decisions with approval | Medium | When a ticket is ready to build |
+| [`pr`](#pr) | Your own PR body | None | Minimal | Every time you open a PR |
 | [`guided-review`](#guided-review) | A PR or your branch | Read; fixes your branch with approval | Low to high, by tier | Reviewing any PR, or before merging your own |
 | [`cold-docs`](#cold-docs) | Documentation | Read | Low | On any docs change |
 | [`cold-walkthrough`](#cold-walkthrough) | A whole product | Read and run | High | Before a release |
-| [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
-| [`pr`](#pr) | Your own PR body | None | Minimal | Every time you open a PR |
+
+---
+
+## To Epics
+
+> A short issue list can still give implementors everything they need.
+
+To Epics turns a PRD, roadmap, or project discussion into a compact map of domain epics. Work that can be built together or in parallel stays as checklist slices inside the epic, so every task does not become a separate issue. Each epic gets a priority, milestone, real blocking links, implementation scope, acceptance checks, verification, and a completion condition.
+
+```text
+/to-epics docs/prd.md
+/to-epics "Plan the migration to the new API"
+```
+
+It reads the current repository and issue tracker, checks existing work for duplicates, and shows you the proposed domains, priorities, slices, and dependency waves. It only creates or edits issues after you approve the concrete map. Slices stay in the epic unless separate discussion, ownership, or outside contribution justifies a sub-issue.
+
+**Needs:** `gh` authenticated for the target GitHub repository. It does not use subagents.
 
 ---
 
@@ -129,6 +155,24 @@ The agent takes an issue, ticket, spec, or task and carries it to a **draft PR**
 It never marks the PR ready, requests reviewers, or merges. Run `/guided-review <PR URL>` on the draft, then mark it ready yourself. `--no-pr` stops before pushing and prints the PR title and body.
 
 **Needs:** `gh` with push access, `pr` from this repo, and Matt Pocock's [`grilling`](https://github.com/mattpocock/skills) skill for the grill step.
+
+---
+
+## PR
+
+> A PR body a reviewer can read in a minute.
+
+A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The agent uses it whenever it writes a PR body, so there is nothing to run.
+
+| Section | What goes in it |
+|---|---|
+| **Summary** | The smallest diagram that shows the change: pseudocode, call tree, file tree, component tree, or a diff-sketch of one. |
+| **Special things to note** | 1-3 bullets on deliberate omissions, migrations, compatibility limits, or surprising decisions, or "None.". Reviewers, and `guided-review`, treat these as intended. |
+| **Evidence** | Before and after, from screenshots or test runs. |
+| **Merge Danger** | One-way or two-way door, and the blast radius. |
+
+> [!NOTE]
+> If you also have Matt Pocock's `pr` installed, remove it first (`npx skills remove pr -g`), since both use the same name.
 
 ---
 
@@ -316,41 +360,6 @@ flowchart LR
 
 ---
 
-## To Epics
-
-> A short issue list can still give implementors everything they need.
-
-To Epics turns a PRD, roadmap, or project discussion into a compact map of domain epics. Work that can be built together or in parallel stays as checklist slices inside the epic, so every task does not become a separate issue. Each epic gets a priority, milestone, real blocking links, implementation scope, acceptance checks, verification, and a completion condition.
-
-```text
-/to-epics docs/prd.md
-/to-epics "Plan the migration to the new API"
-```
-
-It reads the current repository and issue tracker, checks existing work for duplicates, and shows you the proposed domains, priorities, slices, and dependency waves. It only creates or edits issues after you approve the concrete map. Slices stay in the epic unless separate discussion, ownership, or outside contribution justifies a sub-issue.
-
-**Needs:** `gh` authenticated for the target GitHub repository. It does not use subagents.
-
----
-
-## PR
-
-> A PR body a reviewer can read in a minute.
-
-A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The agent uses it whenever it writes a PR body, so there is nothing to run.
-
-| Section | What goes in it |
-|---|---|
-| **Summary** | The smallest diagram that shows the change: pseudocode, call tree, file tree, component tree, or a diff-sketch of one. |
-| **Special things to note** | 1-3 bullets on deliberate omissions, migrations, compatibility limits, or surprising decisions, or "None.". Reviewers, and `guided-review`, treat these as intended. |
-| **Evidence** | Before and after, from screenshots or test runs. |
-| **Merge Danger** | One-way or two-way door, and the blast radius. |
-
-> [!NOTE]
-> If you also have Matt Pocock's `pr` installed, remove it first (`npx skills remove pr -g`), since both use the same name.
-
----
-
 ## FAQ
 
 <details>
@@ -358,7 +367,7 @@ A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The 
 
 <br>
 
-Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills, `guided-review`, and `ship` also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
+Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills and `guided-review` also need to start fresh subagents, which Claude Code can. `pr`, `to-epics`, and `ship` do not need subagents.
 
 </details>
 
@@ -376,7 +385,7 @@ No. Skills that edit files or publish issues wait for your approval first: revie
 
 <br>
 
-The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 50-60k tokens, and `cold-walkthrough` is the highest because testers run real commands.
+The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `ship` is medium because it builds and tests the change, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 50-60k tokens, and `cold-walkthrough` is the highest because testers run real commands.
 
 </details>
 
