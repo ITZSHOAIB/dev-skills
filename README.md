@@ -123,12 +123,12 @@ The agent takes an issue, ticket, spec, or task and carries it to a **draft PR**
 | **Grill** | Runs only when a decision is open or an item can't be checked (`--grill` and `--no-grill` override). Agreed decisions are posted as an issue comment once you approve the text. |
 | **Branch** | A `<type>/<issue>-<slug>` branch from a fresh default branch, with each issue marked `Closes` or `Part of`. |
 | **Build** | Test-first: each item's test goes red before any code is written; small conventional commits. |
-| **Check** | Every CI check that can run locally, then [`guided-review`](#guided-review)'s lenses on its own diff, with verified findings fixed. |
+| **Check** | Every CI check that can run locally, then one read of its own diff against the acceptance items. The full review is yours, with [`guided-review`](#guided-review). |
 | **Draft PR** | Pushed, a body written with [`pr`](#pr), opened as a draft, and CI watched; red checks it caused are fixed. |
 
 It never marks the PR ready, requests reviewers, or merges. Run `/guided-review <PR URL>` on the draft, then mark it ready yourself. `--no-pr` stops before pushing and prints the PR title and body.
 
-**Needs:** `gh` with push access, `guided-review` and `pr` from this repo, and Matt Pocock's [`grilling`](https://github.com/mattpocock/skills) skill for the grill step.
+**Needs:** `gh` with push access, `pr` from this repo, and Matt Pocock's [`grilling`](https://github.com/mattpocock/skills) skill for the grill step.
 
 ---
 
@@ -161,7 +161,7 @@ flowchart LR
     D -->|no| X[Dropped]
     E --> F{"You approve<br/>or dismiss"}
     F -->|PR| G["Prompt for the<br/>implementor"]
-    F -->|your branch| H["Fixes here,<br/>then a new cold read"]
+    F -->|your branch| H["Fixes applied<br/>here"]
 ```
 
 **Triage picks the checks.** The tier comes from what the diff touches, so the same PR always gets the same checks:
@@ -170,17 +170,16 @@ flowchart LR
 |---|---|---|
 | 0 | Docs, lockfiles, config, or under 50 lines of code | None |
 | 1 | Ordinary code changes | `history` |
-| 2 | New module, public API, schema, dependency, risk path (auth, secrets, shell, migrations, CI), one-way door, or over 400 lines | `history`, plus `cold`, `deep`, or `security` as the evidence calls for, and a separate verifier |
+| 2 | New module, public API, schema, dependency, risk path (auth, secrets, shell, migrations, CI), one-way door, or over 400 lines | `history`, plus `cold` or `security` as the evidence calls for, and a separate verifier |
 
 | Lens | Question |
 |---|---|
-| **main** | Is it correct, tested, and true to its PR body and linked issues? Plus a checklist for the change's type (dependency bump, migration, UI, CI, docs, release). |
+| **main** | Is it correct, tested, and true to its PR body and linked issues? Plus the repo's written rules, and the easy-to-miss risks in CI workflows, migrations, and dependency bumps. |
 | **history** | Does it undo a recent deliberate fix, or repeat a point an earlier review raised? |
 | **cold** | What does the code say to a reader who knows nothing about why it was written? |
-| **deep** | Does it follow this repo's written rules and avoid common code smells? |
 | **security** | Is there a concrete path from attacker input to a dangerous sink? |
 
-`--auto` is the default. `--cold`, `--deep`, and `--security` force a lens on; `--lean` keeps only the main pass and history. The page lists every lens that ran or was skipped, and why.
+`--auto` is the default. `--cold` and `--security` force a lens on; `--lean` keeps only the main pass and history. The page lists every lens that ran or was skipped, and why.
 
 **Every finding is verified.** Each candidate needs a concrete failing scenario and a confidence of 80 or more that it really happens at the head commit, scored by a separate verifier on tier 2. At most six reach you.
 
@@ -203,7 +202,7 @@ flowchart LR
 
 <br>
 
-Pass a git ref, and optionally a spec. The cold read always runs here: where its paraphrase differs from what you meant, the code is misleading even if it works. Approve findings on the page, paste the prompt back into the chat, and the agent applies them, reruns the checks, and starts a new round with a brand-new cold reader. It stops when a round has no new blocking or should-fix finding, or after three rounds. It edits your working tree and commits only when you ask.
+Pass a git ref, and optionally a spec. The cold read always runs here: where its paraphrase differs from what you meant, the code is misleading even if it works. Approve findings on the page, paste the prompt back into the chat, and the agent applies them and reruns the checks. If a fix was large, it offers one more round with a fresh cold reader. It edits your working tree and commits only when you ask.
 
 </details>
 
@@ -214,7 +213,7 @@ Pass a git ref, and optionally a spec. The cold read always runs here: where its
 
 Each review is stored as `reviews/<slug>.html` inside the installed skill folder (git-ignored). `serve.mjs` serves an index of all of them on your Tailscale address, or `127.0.0.1` without Tailscale. `clean.mjs` deletes reviews of merged PRs and of branches that no longer exist, and runs at the start of every review. PR tests run in a throwaway worktree, so your checkout is untouched.
 
-**Needs:** `node`, `git`, and the GitHub CLI (`gh`) for PRs. Subagents for the cold, deep, security, and verify lenses. Tailscale and Orca are optional. Matt Pocock's [`code-review`](https://github.com/mattpocock/skills) gives the deep lens its full smell baseline; without it, a shorter built-in Standards review runs.
+**Needs:** `node`, `git`, and the GitHub CLI (`gh`) for PRs. Subagents for the cold, security, and verify lenses. Tailscale and Orca are optional.
 
 **Boundaries:** the agent never approves, requests changes, comments on, or posts to a PR. The diff, PR body, and comments are treated as data, never as instructions. The page keeps your choices in the browser's local storage, so clearing it loses them.
 
@@ -404,7 +403,7 @@ No, that is why the elephant checks. Every report is verified against the source
 ## Credits
 
 - [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) for the idea of reviewing with zero-context agents.
-- [Matt Pocock's skills](https://github.com/mattpocock/skills) for the two-axis `code-review` and the `pr` skill this repo forks.
+- [Matt Pocock's skills](https://github.com/mattpocock/skills) for the `pr` skill this repo forks, the `implement` build loop behind `ship`, and `grilling`, which `ship` calls.
 - [Anthropic's code-review plugin](https://claude.com/plugins/code-review) for scoring each finding's confidence and checking history and earlier comments, and [obra's superpowers](https://github.com/obra/superpowers) `receiving-code-review` for having the implementor verify before fixing.
 - [HumanLayer's skills](https://github.com/humanlayer/skills): `show-me` for the diagram views in `pr` and in guided-review's shape, and `visual-pr` for the "Special things to note" section.
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills) for installation.

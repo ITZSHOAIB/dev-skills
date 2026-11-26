@@ -8,7 +8,7 @@ Someone else's PR. The human hands the approved findings back to its implementor
 - `gh pr view <pr> --json title,body,url,headRefName,headRefOid,baseRefName,files,additions,deletions,reviews,comments` and `gh pr diff <pr>`, once each.
 - `gh api repos/<owner>/<repo>/pulls/<n>/comments` once, for line comments from earlier reviews. The `history` lens uses them.
 - `gh pr checks <pr>` once, for `ci`. A failing check becomes a finding only with a scenario that ties it to this diff; otherwise it stays in `ci.note`.
-- Linked issues: every `#N` or issue URL in the body after a closing keyword (`Closes`, `Fixes`, `Resolves`) or a reference (`Part of`, `Refs`, `Epic`). Run `gh issue view <n> --json title,body,state,labels` once per issue, at most three. An issue that names a parent epic is followed one level up, within the same cap.
+- Linked issues: `gh issue view <n> --json title,body` for each issue the body closes or references, at most three.
 - Test in a throwaway **worktree**, so the human's checkout is untouched. In the human's clone of the repo (the current directory when it is one; otherwise `gh repo clone <owner>/<repo> <scratch>/<repo> -- --filter=blob:none`):
 
   ```sh
@@ -24,7 +24,7 @@ Done when each changed file is read, the PR body's test claims are checked again
 
 A claim the diff contradicts, with a scenario, is a finding; a claim too vague to check is a question. What Special things to note lists as deliberately left out is not a defect.
 
-Each acceptance item of a linked issue is also a claim, checked against the code at the PR head: in this diff, or already on the base branch from an earlier PR (one `git grep` or `gh pr list --search "#<n>"` per item, no more). When the PR closes the issue, every item must hold at merge; a missing item is a finding when it has a scenario and a question otherwise. When the PR only refers to the issue, check just the items the PR says it covers, and list work for the issue that the PR adds beyond them as a question about scope.
+Each acceptance item of an issue the PR closes is also a claim, and must hold at the PR head. A missing item is a finding when it has a scenario, and a question otherwise.
 
 `claims` has one entry per claim the PR body makes, in this order: Tests, Summary, Special things to note, Merge Danger. Leave out sections the body does not have. Linked-issue items come last, one entry each: `claim` is just `#<issue>` (it renders unwrapped) and `note` is the item plus where it holds, e.g. `docs page updated: website/artifacts.md (this PR)`. Record every claim you checked, so the page shows the check ran even when everything matches.
 

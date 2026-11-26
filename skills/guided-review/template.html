@@ -137,7 +137,7 @@ function build(){
     if(qa.length){P.push("## Reviewer answers","","Act on any answer that asks for a change; verify it the same way.","");qa.forEach(q=>P.push(`- ${q.id} · ${q.text}`,`  Answer: ${S.q[q.text].trim()}`));P.push("")}
     if(note)P.push("## Also from the reviewer","",note,"");
     P.push("## Finish","",`1. Run: ${D.commands}. Every command must pass.`,
-      self?`2. Leave the changes uncommitted; guided-review starts round ${(D.round||1)+1} next.`:"2. Commit with a conventional message and push to the same branch. Do not comment on, approve, or merge the PR.",
+      self?"2. Leave the changes uncommitted.":"2. Commit with a conventional message and push to the same branch. Do not comment on, approve, or merge the PR.",
       "3. Report one line per finding: <id> · fixed or skipped, and why. Then what you did for each reviewer answer, and each command's result.");
   }
   $("prompt").textContent=P.join("\n");

@@ -1,6 +1,6 @@
 ---
 name: guided-review
-description: Review any PR or local branch for a human reviewer — risk triage picks the checks, every finding is verified and scored, and a review page turns the human's approvals into an implementor prompt or a fix loop. Invoke with /guided-review <PR URL, PR number, or git ref> [spec path] [--auto | --lean | --deep | --cold | --security].
+description: Review any PR or local branch for a human reviewer — risk triage picks the checks, every finding is verified and scored, and a review page turns the human's approvals into an implementor prompt or a fix loop. Invoke with /guided-review <PR URL, PR number, or git ref> [spec path] [--auto | --lean | --cold | --security].
 disable-model-invocation: true
 ---
 
@@ -41,17 +41,16 @@ Classify the change once, from what Gather already read.
 | 0 | Only docs, lockfiles, version bumps, or config, or under 50 changed lines of code with no risk path. |
 | 1 | Everything else. |
 
-Then pick the **lenses**. The main pass always runs; it covers correctness, the claims check, tests, and the type checklist. The rest:
+Then pick the **lenses**. The main pass always runs; it covers correctness, the claims check, tests, and the repo's documented rules. The rest:
 
 | Lens | Runs under `--auto` when |
 |---|---|
 | `history` | Tier 1 and up. Inline and cheap, no subagent. |
 | `cold` | Tier 2 for a design change (new module, public API, one-way door). Always in self mode. |
-| `deep` | Tier 2, the repo documents coding rules, and code changed in 4 or more files. |
 | `security` | Tier 2 for a risk path or a new dependency. |
 | `verify` | Tier 2. |
 
-`--auto` is the default. `--deep`, `--cold`, and `--security` force a lens on, and `--lean` keeps only the main pass and `history`. Record each lens that ran or was skipped with a one-line `why` that names the evidence (`cold: new module src/mcp/`). The page shows the list, so the human can rerun with a flag.
+`--auto` is the default. `--cold` and `--security` force a lens on, and `--lean` keeps only the main pass and `history`. Record each lens that ran or was skipped with a one-line `why` that names the evidence (`cold: new module src/mcp/`). The page shows the list, so the human can rerun with a flag.
 
 Done when `type`, `tier`, and every lens's run or skip decision with its `why` are written down.
 
@@ -61,7 +60,7 @@ Run the main pass yourself. Start the chosen lenses together, using the prompts 
 
 Each candidate needs a **scenario**: a concrete input or state, then the wrong behaviour. A suspicion without one is dropped. A broken repo rule counts. A call only the human can make becomes a question, never a finding.
 
-Lens output is candidates, never findings. Standards findings stay labelled as such (a hard rule violation or a judgement-call smell), and a repo rule always beats the smell baseline.
+Lens output is candidates, never findings. A broken documented repo rule counts; cite the rule.
 
 Done when every lens has reported and each candidate has a scenario or is dropped.
 
@@ -79,7 +78,7 @@ Each finding has:
 - `where`: `path:line`;
 - `defect` (one sentence) and `scenario`;
 - `fix` and `test` (the check that would fail first; empty for a nit);
-- `confidence` and `lens` (`main`, `history`, `cold`, `deep`, `security`);
+- `confidence` and `lens` (`main`, `history`, `cold`, `security`);
 - optional `raised`: who already raised it, and where, when an earlier review comment covers it;
 - optional `shape`: at most 8 lines placing the defect in the call tree, or sketching the fix. Add it only when it is shorter than the prose it replaces.
 
