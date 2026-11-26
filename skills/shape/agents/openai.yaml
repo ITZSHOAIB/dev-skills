@@ -1,0 +1,5 @@
+interface:
+  display_name: "Shape"
+  short_description: "Turn a report into a ready issue that ship can build"
+policy:
+  allow_implicit_invocation: false
