@@ -2,118 +2,151 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Guided review</title>
 <style>
-:root{color-scheme:light dark;--bg:var(--background,Canvas);--fg:var(--foreground,CanvasText);--bd:var(--border,#8884);--mut:var(--muted-foreground,#888);
-  --ok:#2a9d4a;--red:#d33;--amb:#c80;--add:#2a9d4a22;--del:#d3333322}
+:root{color-scheme:light dark;--bg:var(--background,Canvas);--fg:var(--foreground,CanvasText);--bd:var(--border,#8884);--mut:var(--muted-foreground,#5f5f5f);
+  --ok:#17703a;--red:#c62828;--amb:#a86400;--add:#2a9d4a22;--del:#d3333322}
+@media (prefers-color-scheme:dark){:root{--mut:var(--muted-foreground,#a3a3a3);--ok:#4cc46b;--red:#ff6b6b;--amb:#f0a830}}
 *{box-sizing:border-box}
 body{margin:0 auto;padding:16px 16px 0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,sans-serif;max-width:860px}
 h1{font-size:19px;line-height:1.3;margin:0 0 4px}h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin:24px 0 8px}
-a{color:inherit}.row code{overflow-wrap:anywhere}.mut{color:var(--mut);font-size:13px}p{margin:4px 0}code{font:13px ui-monospace,monospace}
+a{color:inherit}.row code,.reading code{overflow-wrap:anywhere}.mut{color:var(--mut);font-size:13px}p{margin:4px 0}code{font:13px ui-monospace,monospace}
 .strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .card{border:1px solid var(--bd);border-left:4px solid var(--bd);border-radius:8px;padding:12px 14px;margin:10px 0;outline:none}
 .card.blocking{border-left-color:var(--red)}.card.should-fix{border-left-color:var(--amb)}
 .card:focus-visible{box-shadow:0 0 0 2px var(--mut)}
 .card.approve{border-color:var(--ok);border-left-color:var(--ok)}
-.card.dismiss .body{opacity:.5}
+.card.dismiss .body{color:var(--mut)}
 .row{min-width:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .pill{font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid var(--bd);white-space:nowrap}
-.pill.blocking{border-color:var(--red);color:var(--red)}.pill.should-fix{border-color:var(--amb);color:var(--amb)}
+.pill.blocking,.pill.failing{border-color:var(--red);color:var(--red)}.pill.should-fix,.pill.pending{border-color:var(--amb);color:var(--amb)}.pill.passing{border-color:var(--ok);color:var(--ok)}
 .pill.dismissed{background:var(--mut);color:var(--bg);border-color:var(--mut)}
 .acts{display:flex;gap:8px;margin-left:auto}
 button{font:inherit;min-height:44px;padding:6px 16px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:inherit;cursor:pointer}
-button[aria-pressed=true].a{background:var(--ok);color:#fff;border-color:var(--ok)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button[aria-pressed=true].a{background:var(--ok);color:var(--bg);border-color:var(--ok)}
 button[aria-pressed=true].d{background:var(--mut);color:var(--bg);border-color:var(--mut)}
 textarea{width:100%;margin-top:8px;font:inherit;background:transparent;color:inherit;border:1px solid var(--bd);border-radius:8px;padding:8px;min-height:44px;resize:vertical}
 pre{white-space:pre-wrap;word-break:break-word;border:1px solid var(--bd);border-radius:8px;padding:10px;font:12.5px/1.5 ui-monospace,monospace;margin:8px 0}
 pre.shape{white-space:pre;overflow-x:auto;word-break:normal}
 pre.shape span{display:block}pre.shape .add{background:var(--add);color:var(--ok)}pre.shape .del{background:var(--del);color:var(--red)}
-.claim{display:flex;gap:8px;align-items:baseline;margin:6px 0}.claim b{white-space:nowrap}
-.st.matches{border-color:var(--ok);color:var(--ok)}.st.contradicted{border-color:var(--red);color:var(--red)}.st.unclear,.st.unverified{border-color:var(--amb);color:var(--amb)}
+.claim,.lens{display:flex;gap:8px;align-items:baseline;margin:6px 0}.claim b,.lens b{white-space:nowrap}
+.st.matches,.st.ran{border-color:var(--ok);color:var(--ok)}.st.contradicted{border-color:var(--red);color:var(--red)}.st.unclear,.st.unverified{border-color:var(--amb);color:var(--amb)}
+.reading{margin:4px 0;padding-left:22px}.reading li{margin:4px 0}
 .lbl{font-weight:600}
 summary{cursor:pointer;color:var(--mut);font-size:13px;margin-top:6px;min-height:28px}
 .bar{position:sticky;bottom:0;display:flex;gap:10px;align-items:center;padding:10px 0;margin-top:16px;background:var(--bg);border-top:1px solid var(--bd)}
 .bar #copy{margin-left:auto;white-space:nowrap}#saved{transition:opacity .4s;opacity:0}#saved.on{opacity:1}
-@media (max-width:600px){.acts{width:100%;margin-left:0}.acts button{flex:1}.claim{flex-wrap:wrap}}
-</style></head><body>
+@media (prefers-reduced-motion:reduce){#saved{transition:none}}
+@media (max-width:600px){.acts{width:100%;margin-left:0}.acts button{flex:1}.claim,.lens{flex-wrap:wrap}}
+</style></head><body><main>
 <h1 id="title"></h1><div class="mut" id="meta"></div><div class="strip" id="strip"></div>
 <h2>Problem</h2><p id="problem"></p>
-<h2>How this PR solves it</h2><p id="how"></p>
+<h2>How this change solves it</h2><p id="how"></p>
 <div id="swrap"><h2>Shape of the change</h2><pre class="shape" id="shape"></pre></div>
-<div id="cwrap"><h2>PR claims</h2><div id="claims"></div></div>
+<div id="rwrap"><h2>Reading order</h2><ol class="reading" id="reading"></ol></div>
+<div id="cwrap"><h2>Claims checked</h2><div id="claims"></div></div>
+<div id="lwrap"><h2>Checks</h2><div id="lenses"></div></div>
 <p class="mut" id="verified"></p>
 <h2>Findings <span class="mut" id="keys"></span></h2><div id="findings"></div>
 <div id="qwrap"><h2>Questions for you</h2><div id="questions"></div></div>
-<h2>Anything else for the implementor?</h2><textarea id="overall" placeholder="Optional"></textarea>
-<h2>Prompt for the implementor <span class="mut" id="pstate"></span></h2>
+<h2><label for="overall">Anything else for the implementor?</label></h2><textarea id="overall" placeholder="Optional"></textarea>
+<h2>Prompt <span class="mut" id="pstate"></span></h2>
 <pre id="prompt"></pre>
-<div class="bar"><span class="mut" id="count"></span><span class="mut" id="saved">saved</span><button id="copy">Copy prompt</button></div>
+<div class="bar"><span class="mut" id="count" aria-live="polite"></span><span class="mut" id="saved" aria-hidden="true">saved</span><button id="copy">Copy prompt</button></div>
+</main>
 <script type="application/json" id="data">__DATA__</script>
 <script>
 const D=JSON.parse(document.getElementById("data").textContent),$=id=>document.getElementById(id);
-const KEY="guided-review:"+(D.pr.url||D.pr.title)+":"+(D.builtAt||"");let S={};
+const self=D.mode==="self",F=D.findings||[],Q=D.questions||[];
+// Decisions are keyed on the review and on each finding's text, not on F1..F6, so they survive a rebuild.
+const KEY="guided-review:"+(D.pr.url||D.repo+"#"+D.pr.head);let S={};
 try{S=JSON.parse(localStorage.getItem(KEY)||"{}")}catch{}
 let tick;const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch{}
   $("saved").classList.add("on");clearTimeout(tick);tick=setTimeout(()=>$("saved").classList.remove("on"),900)};
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const link=(href,child)=>{const a=el("a");a.append(child);if(/^https:\/\//.test(href||"")){a.href=href;a.target="_blank";a.rel="noopener"}return a};
 const shape=text=>{const p=el("pre","shape");text.split("\n").forEach(l=>p.append(el("span",l[0]==="+"?"add":l[0]==="-"?"del":"",l||" ")));return p};
 const labelled=(k,v)=>{const p=el("p");p.append(el("span","lbl",k+": "),v);return p};
+const fkey=f=>f.where+"\n"+f.defect;
 S.f=S.f||{};S.q=S.q||{};S.overall=S.overall||"";
 $("title").textContent=D.pr.title;
-$("meta").textContent=`${D.pr.head} → ${D.pr.base}${D.pr.size?" · "+D.pr.size:""}${D.builtAt?" · built "+new Date(D.builtAt).toLocaleString():""} · `;
-if(D.pr.url){const a=el("a",null,"open PR");a.href=D.pr.url;$("meta").append(a)}
-["blocking","should-fix","nit"].forEach(s=>{const n=D.findings.filter(f=>f.sev===s).length;if(n)$("strip").append(el("span","pill "+s,`${n} ${s}`))});
-if(!D.findings.length)$("strip").append(el("span","pill","no findings"));
+$("meta").textContent=`${D.pr.head} → ${D.pr.base}${D.pr.size?" · "+D.pr.size:""}${self&&D.round?" · round "+D.round:""}${D.builtAt?" · built "+new Date(D.builtAt).toLocaleString():""}`;
+if(/^https:\/\//.test(D.pr.url||"")){$("meta").append(" · ",link(D.pr.url,"open PR"))}
+["blocking","should-fix","nit"].forEach(s=>{const n=F.filter(f=>f.sev===s).length;if(n)$("strip").append(el("span","pill "+s,`${n} ${s}`))});
+if(!F.length)$("strip").append(el("span","pill","no findings"));
+if(D.triage)$("strip").append(el("span","pill",`tier ${D.triage.tier} · ${D.triage.type}`));
+if(D.ci&&D.ci.status&&D.ci.status!=="none")$("strip").append(el("span","pill "+D.ci.status,`CI ${D.ci.status}`+(D.ci.note?` · ${D.ci.note}`:"")));
 $("problem").textContent=D.problem;$("how").textContent=D.how;$("verified").textContent=D.verified||"";
 if(D.shape)$("swrap").replaceChild(shape(D.shape),$("shape"));else $("swrap").hidden=true;
+if(!(D.reading||[]).length)$("rwrap").hidden=true;
+(D.reading||[]).forEach(r=>{const li=el("li");li.append(link(r.href,el("code",null,r.path)));if(r.note)li.append(" · ",el("span","mut",r.note));$("reading").append(li)});
 if(!(D.claims||[]).length)$("cwrap").hidden=true;
 (D.claims||[]).forEach(c=>{const r=el("div","claim");r.append(el("span","pill st "+c.status,c.status),el("b",null,c.claim),el("span",null,c.note||""));
   if(c.ref){const a=el("a",null,c.ref);a.href="#"+c.ref;r.append(a)}$("claims").append(r)});
-if(!(D.questions||[]).length)$("qwrap").hidden=true;
+const L=(D.triage&&D.triage.lenses)||[];if(!L.length)$("lwrap").hidden=true;
+L.forEach(l=>{const r=el("div","lens");r.append(el("span","pill st "+(l.ran?"ran":"skipped"),l.ran?"ran":"skipped"),el("b",null,l.name),el("span","mut",l.why||""));$("lenses").append(r)});
+if(!Q.length)$("qwrap").hidden=true;
 const cards=[];
-D.findings.forEach(f=>{
-  const s=S.f[f.id]=S.f[f.id]||{d:"",c:""},c=el("div","card "+f.sev);c.id=f.id;c.tabIndex=0;
-  const top=el("div","row"),w=el("a",null);w.append(el("code",null,f.where));if(D.pr.url)w.href=D.pr.url+"/files";w.target="_blank";
-  const tag=el("span","pill dismissed","dismissed");
-  top.append(el("b",null,f.id),el("span","pill "+f.sev,f.sev),w,tag);
+F.forEach(f=>{
+  const s=S.f[fkey(f)]=S.f[fkey(f)]||{d:"",c:""},c=el("div","card "+f.sev);c.id=f.id;c.tabIndex=0;
+  const top=el("div","row"),tag=el("span","pill dismissed","dismissed");
+  top.append(el("b",null,f.id),el("span","pill "+f.sev,f.sev),link(f.href,el("code",null,f.where)),tag);
+  const meta=el("div","row mut");if(f.lens)meta.append(el("span",null,f.lens));if(f.confidence!=null)meta.append(el("span",null,`confidence ${f.confidence}`));
   const a=el("button","a","Approve"),d=el("button","d","Dismiss"),acts=el("div","acts");acts.append(a,d);
+  a.setAttribute("aria-label",`Approve ${f.id}`);d.setAttribute("aria-label",`Dismiss ${f.id}`);
   const set=v=>{s.d=s.d===v?"":v;paint();save();build()};a.onclick=()=>set("approve");d.onclick=()=>set("dismiss");
   const body=el("div","body"),det=el("details");det.append(el("summary",null,f.shape?"Fix and shape":"Fix"),labelled("Fix",f.fix));
   if(f.test)det.append(labelled("Test first",f.test));if(f.shape)det.append(shape(f.shape));
-  body.append(el("p",null,f.defect),labelled("Scenario",f.scenario),det);
-  const t=el("textarea");t.placeholder="Your comment (optional)";t.value=s.c;t.oninput=()=>{s.c=t.value;save();build()};
-  top.append(acts);c.append(top,body,t);$("findings").append(c);
+  body.append(el("p",null,f.defect),labelled("Scenario",f.scenario));if(f.raised)body.append(labelled("Already raised",f.raised));body.append(det);
+  const t=el("textarea");t.placeholder="Your comment (optional)";t.setAttribute("aria-label",`Comment on ${f.id}`);t.value=s.c;t.oninput=()=>{s.c=t.value;save();build()};
+  top.append(acts);c.append(top,meta,body,t);$("findings").append(c);
   function paint(){c.className=`card ${f.sev} ${s.d}`;tag.hidden=s.d!=="dismiss";a.setAttribute("aria-pressed",s.d==="approve");d.setAttribute("aria-pressed",s.d==="dismiss")}
   c.set=set;cards.push(c);paint();
 });
 if(cards.length&&matchMedia("(hover:hover)").matches)$("keys").textContent="· j/k move · a/d approve/dismiss";
-(D.questions||[]).forEach(q=>{
-  const t=el("textarea");t.value=S.q[q.id]||"";t.placeholder="Your answer";
-  t.oninput=()=>{S.q[q.id]=t.value;save();build()};
+Q.forEach(q=>{
+  const t=el("textarea");t.value=S.q[q.text]||"";t.placeholder="Your answer";t.setAttribute("aria-label",`Answer to ${q.id}`);
+  t.oninput=()=>{S.q[q.text]=t.value;save();build()};
   const w=el("div","card");w.id=q.id;w.append(el("p",null,q.id+" · "+q.text),t);$("questions").append(w);
 });
 $("overall").value=S.overall;$("overall").oninput=e=>{S.overall=e.target.value;save();build()};
 document.addEventListener("keydown",e=>{
   if(e.target.matches("textarea,input")||e.metaKey||e.ctrlKey||e.altKey||!cards.length)return;
-  const i=cards.indexOf(document.activeElement);
+  const i=cards.indexOf(e.target.closest&&e.target.closest(".card"));
   if(e.key==="j"||e.key==="k"){const n=i<0?0:Math.min(cards.length-1,Math.max(0,i+(e.key==="j"?1:-1)));cards[n].focus();cards[n].scrollIntoView({block:"nearest"})}
   else if(i>=0&&(e.key==="a"||e.key==="d"))cards[i].set(e.key==="a"?"approve":"dismiss");
 });
 function build(){
-  const ok=D.findings.filter(f=>S.f[f.id].d==="approve"),und=D.findings.filter(f=>!S.f[f.id].d).length;
-  $("count").textContent=`${ok.length} approved · ${D.findings.length-ok.length-und} dismissed · ${und} undecided`;
+  const ok=F.filter(f=>S.f[fkey(f)].d==="approve"),und=F.filter(f=>!S.f[fkey(f)].d).length;
+  $("count").textContent=`${ok.length} approved · ${F.length-ok.length-und} dismissed · ${und} undecided`;
   $("pstate").textContent=und?`(${und} undecided are left out)`:"";
-  const qa=(D.questions||[]).filter(q=>(S.q[q.id]||"").trim()),note=S.overall.trim(),L=[];
-  if(!ok.length&&!qa.length&&!note){L.push(`Review of ${D.pr.title} (branch ${D.pr.head}): no changes requested.`)}
-  else{
-    L.push(`Address review items on ${D.pr.title} (branch ${D.pr.head}) in ${D.repo}. Change nothing beyond the items below. Follow the repo's AGENTS.md.`,"");
-    ok.forEach(f=>{L.push(`${f.id} [${f.sev}] ${f.where}`,`  Problem: ${f.defect}`,`  Change: ${f.fix}`);
-      if(f.shape)L.push("  Shape:",...f.shape.split("\n").map(l=>"    "+l));
-      if(f.test)L.push(`  Test first: ${f.test}`);
-      if(S.f[f.id].c.trim())L.push(`  Reviewer note (takes priority): ${S.f[f.id].c.trim()}`);L.push("")});
-    if(qa.length){L.push("Reviewer answers (act on any that ask for a change):");qa.forEach(q=>L.push(`  ${q.id} (${q.text}): ${S.q[q.id].trim()}`));L.push("")}
-    if(note)L.push("Also: "+note,"");
-    L.push(`Run: ${D.commands}. Commit with a conventional message and push to the same branch.`);
+  const qa=Q.filter(q=>(S.q[q.text]||"").trim()),note=S.overall.trim(),P=[];
+  $("copy").disabled=false;
+  if(!ok.length&&!qa.length&&!note){
+    if(und){P.push(`${und} finding${und>1?"s are":" is"} still undecided. Approve or dismiss each one first.`);$("copy").disabled=true}
+    else P.push(self?`Round ${D.round||1} of guided-review on ${D.pr.head}: every finding dismissed. Report the final state.`:`Review of ${D.pr.title} (branch ${D.pr.head}): no changes requested.`);
+  }else{
+    const n=ok.length+qa.length+(note?1:0);
+    P.push(`# Review follow-up: ${D.pr.title}`,"",
+      `Repo: ${D.repo}`,`Branch: ${D.pr.head} (base ${D.pr.base})`+(D.pr.url?`\nPR: ${D.pr.url}`:"")+(self?`\nRound: ${D.round||1}`:""),
+      `Source: guided-review. Every item below was approved by a human reviewer; dismissed findings are left out.`,"",
+      "## How to work","",
+      "1. Verify before you fix. For each item, read the cited code at the branch head, trace the scenario, and give it a verdict: confirmed, already fixed, or wrong. A review can be mistaken.",
+      "2. Fix confirmed items only. For an item that is wrong or already fixed, change nothing and keep the evidence (file:line) for your report.",
+      "3. Where an item has a test, write it first and watch it fail on the current code, then fix until it passes.",
+      "4. A reviewer note overrides the suggested change.",
+      `5. Change nothing beyond these ${n} item${n>1?"s":""}. Follow the repo's AGENTS.md and existing style.`,"");
+    if(ok.length){P.push("## Findings","");
+      ok.forEach(f=>{P.push(`### ${f.id} · ${f.sev} · ${f.where}`,"",`- Problem: ${f.defect}`,`- Scenario: ${f.scenario}`,`- Suggested change: ${f.fix}`);
+        if(f.test)P.push(`- Test first: ${f.test}`);
+        if(S.f[fkey(f)].c.trim())P.push(`- Reviewer note (takes priority): ${S.f[fkey(f)].c.trim()}`);
+        if(f.shape)P.push("- Shape:","","```",f.shape,"```");P.push("")})}
+    if(qa.length){P.push("## Reviewer answers","","Act on any answer that asks for a change; verify it the same way.","");qa.forEach(q=>P.push(`- ${q.id} · ${q.text}`,`  Answer: ${S.q[q.text].trim()}`));P.push("")}
+    if(note)P.push("## Also from the reviewer","",note,"");
+    P.push("## Finish","",`1. Run: ${D.commands}. Every command must pass.`,
+      self?`2. Leave the changes uncommitted; guided-review starts round ${(D.round||1)+1} next.`:"2. Commit with a conventional message and push to the same branch. Do not comment on, approve, or merge the PR.",
+      "3. Report one line per item: <id> · fixed | wrong | already fixed · the evidence or the change, then each command's result.");
   }
-  $("prompt").textContent=L.join("\n");
+  $("prompt").textContent=P.join("\n");
 }
 $("copy").onclick=async()=>{const t=$("prompt").textContent;
   try{await navigator.clipboard.writeText(t)}catch{const r=document.createRange();r.selectNodeContents($("prompt"));const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy")}
