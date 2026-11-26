@@ -35,7 +35,9 @@ function index() {
         .map((r) => {
           const slug = r.name.slice(0, -".json".length);
           const sev = (s) => r.findings.filter((f) => f.sev === s).length;
-          return `<li><a href="/${slug}.html">${escape(r.pr.title)}</a><br><small>${escape(slug)} · ${r.findings.length} findings (${sev("blocking")} blocking, ${sev("should-fix")} should-fix, ${sev("nit")} nit) · ${new Date(r.mtime).toLocaleString()}</small></li>`;
+          const kind = r.mode === "self" ? `local, round ${r.round ?? 1}` : "PR";
+          const tier = r.triage ? ` · tier ${r.triage.tier}` : "";
+          return `<li><a href="/${slug}.html">${escape(r.pr.title)}</a><br><small>${escape(slug)} · ${escape(kind)}${escape(tier)} · ${r.findings.length} findings (${sev("blocking")} blocking, ${sev("should-fix")} should-fix, ${sev("nit")} nit) · ${new Date(r.mtime).toLocaleString()}</small></li>`;
         })
     : [];
   return `<!doctype html><meta charset="utf-8"><title>Guided reviews</title><style>:root{color-scheme:light dark}body{font:14px/1.6 system-ui;max-width:760px;margin:16px auto;padding:0 12px}li{margin:10px 0}small{opacity:.6}</style><h1>Guided reviews</h1><ul>${rows.join("") || "<li>No reviews yet.</li>"}</ul>`;

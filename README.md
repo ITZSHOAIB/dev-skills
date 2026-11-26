@@ -8,7 +8,6 @@
   <a href="#install">Install</a> &ensp;·&ensp;
   <a href="#which-skill-do-i-need">Which skill?</a> &ensp;·&ensp;
   <a href="#the-idea">The idea</a> &ensp;·&ensp;
-  <a href="#cold-review">Cold Review</a> &ensp;·&ensp;
   <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
   <a href="#cold-docs">Cold Docs</a> &ensp;·&ensp;
   <a href="#cold-walkthrough">Cold Walkthrough</a> &ensp;·&ensp;
@@ -19,7 +18,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-6-6fd3ff.svg?style=flat-square" alt="Skills: 6"></a>
+  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-5-6fd3ff.svg?style=flat-square" alt="Skills: 5"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg?style=flat-square" alt="Install with npx skills"></a>
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-f59e0b.svg?style=flat-square" alt="Works with Claude Code">
   <img src="https://img.shields.io/badge/dependencies-none-4ade80.svg?style=flat-square" alt="No dependencies">
@@ -30,7 +29,7 @@
 AI agents write code faster than anyone can check it, and docs faster than anyone can test them. These skills add checks and planning that speed skips. Some send a job to a **fresh agent with no backstory**; others turn a project plan into coordinated issues. Each verifies the evidence it handles and returns decisions to you before changing source files or publishing issues.
 
 > [!TIP]
-> New here? Run `npx skills add ITZSHOAIB/dev-skills -g`, start a new agent session, then try `/cold-review main` on a branch you are about to merge.
+> New here? Run `npx skills add ITZSHOAIB/dev-skills -g`, start a new agent session, then try `/guided-review main` on a branch you are about to merge.
 
 ---
 
@@ -40,7 +39,7 @@ AI agents write code faster than anyone can check it, and docs faster than anyon
 npx skills add ITZSHOAIB/dev-skills -g
 ```
 
-That installs all six skills globally. Start a new agent session afterwards so they are picked up.
+That installs all five skills globally, plus `cold-review` as an alias for `guided-review`. Start a new agent session afterwards so they are picked up.
 
 <details>
 <summary><b>Install one skill, install per project, update, list, or remove</b></summary>
@@ -49,11 +48,11 @@ That installs all six skills globally. Start a new agent session afterwards so t
 
 | I want to | Run |
 |---|---|
-| Install a single skill | `npx skills add ITZSHOAIB/dev-skills --skill cold-review -g` |
+| Install a single skill | `npx skills add ITZSHOAIB/dev-skills --skill guided-review -g` |
 | Install into this project only | Leave off `-g` |
 | See what the repo offers | `npx skills add ITZSHOAIB/dev-skills --list` |
 | Update everything installed | `npx skills update -g` |
-| Remove a skill | `npx skills remove cold-review -g` |
+| Remove a skill | `npx skills remove guided-review -g` |
 
 </details>
 
@@ -63,7 +62,7 @@ That installs all six skills globally. Start a new agent session afterwards so t
 
 | You are about to… | Use | Run it with |
 |---|---|---|
-| **Merge a change** with real design decisions | [Cold Review](#cold-review) | `/cold-review main` |
+| **Merge your own change** and want a fresh pair of eyes first | [Guided Review](#guided-review) | `/guided-review main` |
 | **Review someone else's PR** and want to make the calls yourself | [Guided Review](#guided-review) | `/guided-review <PR URL>` |
 | **Change docs**, or wonder if they make sense to a newcomer | [Cold Docs](#cold-docs) | `/cold-docs <docs URL or folder>` |
 | **Ship a release**, or change install, scaffolding, the CLI or its errors | [Cold Walkthrough](#cold-walkthrough) | `/cold-walkthrough <docs URL or package>` |
@@ -95,8 +94,7 @@ flowchart LR
 
 | Skill | Looks at | Tester can | Cost | Best moment |
 |---|---|---|---|---|
-| [`cold-review`](#cold-review) | A code change | Read | Medium | Before merging a design-heavy change |
-| [`guided-review`](#guided-review) | A pull request | Read | Low to medium | When you are the reviewer |
+| [`guided-review`](#guided-review) | A PR or your branch | Read; fixes your branch with approval | Low to high, by tier | Reviewing any PR, or before merging your own |
 | [`cold-docs`](#cold-docs) | Documentation | Read | Low | On any docs change |
 | [`cold-walkthrough`](#cold-walkthrough) | A whole product | Read and run | High | Before a release |
 | [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
@@ -104,112 +102,78 @@ flowchart LR
 
 ---
 
-## Cold Review
+## Guided Review
 
-> Code that makes sense to its author can still mislead everyone else.
+> You review. The agent prepares the evidence and the hand-off.
 
-Most code review checks a change against what it was *supposed* to do. A reviewer who already knows the plan fills the gaps from memory, so they miss the places where the code doesn't say what you meant.
-
-Cold Review adds the reader who doesn't know the plan. A fresh subagent gets the code and nothing else: no spec, no commit messages, no conversation. It explains what the change does, and that explanation gets compared with what you intended. **Where they differ, the code is misleading, even if it works.**
+One review skill for any change: someone else's PR, or your own branch before you merge it. The agent sizes up the change, picks the checks it deserves, verifies every finding, and builds one review page. It never gives a verdict for you to rubber-stamp, and it never posts to the PR: posting is yours.
 
 ```text
-/cold-review main
-/cold-review main docs/designs/webhooks.md
+/guided-review https://github.com/OWNER/REPO/pull/123
+/guided-review 123 --cold
+/guided-review main
+/guided-review main docs/designs/webhooks.md
 ```
 
-Pass a git ref to compare against, and optionally a spec.
+A PR URL or number reviews someone else's PR and ends in a prompt you hand to its implementor. A git ref reviews your own change and ends in a fix loop in the same session. `cold-review` is now an alias for the second.
 
-<details>
+<details open>
 <summary><b>How it works</b></summary>
 
 <br>
 
 ```mermaid
 flowchart LR
-    A[Pin the change] --> B[Run types and tests]
-    B --> C[Cold read]
-    C --> D[Standards and Spec]
-    D --> E[Compare and triage]
-    E --> F{You choose fixes}
-    F --> G[Apply fixes]
-    G --> C
-    F --> H[Done]
+    A["Gather<br/>diff, claims, issues,<br/>CI, tests in a worktree"] --> B["Triage<br/>type and tier"]
+    B --> C["Main pass<br/>plus chosen lenses"]
+    C --> D{"Verify<br/>confidence ≥ 80?"}
+    D -->|yes| E["Review page"]
+    D -->|no| X[Dropped]
+    E --> F{"You approve<br/>or dismiss"}
+    F -->|PR| G["Prompt for the<br/>implementor"]
+    F -->|your branch| H["Fixes here,<br/>then a new cold read"]
 ```
 
-Standards and Spec run once. Later rounds repeat the cold read only.
+**Triage picks the checks.** The tier comes from what the diff touches, so the same PR always gets the same checks:
 
-Three reviews stay separate, so one can't hide problems in another:
-
-| Axis | Question | Knows the intent? |
+| Tier | When | Extra checks |
 |---|---|---|
-| **Cold read** | What does this code say by itself? | No |
-| **Standards** | Does it follow this repo's rules? | Rules only |
-| **Spec** | Does it do what was asked? | Yes |
+| 0 | Docs, lockfiles, config, or under 50 lines of code | None |
+| 1 | Ordinary code changes | `history` |
+| 2 | New module, public API, schema, dependency, risk path (auth, secrets, shell, migrations, CI), one-way door, or over 400 lines | `history`, plus `cold`, `deep`, or `security` as the evidence calls for, and a separate verifier |
 
-Every finding then gets a verdict:
+| Lens | Question |
+|---|---|
+| **main** | Is it correct, tested, and true to its PR body and linked issues? Plus a checklist for the change's type (dependency bump, migration, UI, CI, docs, release). |
+| **history** | Does it undo a recent deliberate fix, or repeat a point an earlier review raised? |
+| **cold** | What does the code say to a reader who knows nothing about why it was written? |
+| **deep** | Does it follow this repo's written rules and avoid common code smells? |
+| **security** | Is there a concrete path from attacker input to a dangerous sink? |
 
-- **Fix**: a real problem, with a proposed change.
-- **Keep**: deliberate, with the reason stated. If only the author knows that reason, it's a candidate for a comment or a test.
-- **Verify**: not confirmed yet. It gets checked until it becomes Fix or Keep.
+`--auto` is the default. `--cold`, `--deep`, and `--security` force a lens on; `--lean` keeps only the main pass and history. The page lists every lens that ran or was skipped, and why.
 
-The agent then stops and you choose what to fix. After your fixes, a brand-new reader reviews again, until a round has no new Blocker or Major finding, or after three rounds.
-
-</details>
-
-<details>
-<summary><b>Recommended add-on, and when not to use it</b></summary>
-
-<br>
-
-Matt Pocock's [`code-review`](https://github.com/mattpocock/skills) gives more thorough Standards and Spec reviews:
-
-```sh
-npx skills add mattpocock/skills --skill code-review -g
-```
-
-If it's missing, Cold Review asks before installing it. Say no and it runs its own shorter built-in reviews, and the report tells you which ones ran.
-
-**Use it** for changes with real design decisions. **Skip it** for a small, clear fix: each round spends agent time on several reviewers.
-
-Cold Review doesn't replace tests or human judgement. The reader is told to stay away from specs and history, but nothing enforces that, and project instruction files such as `AGENTS.md` may still load automatically.
+**Every finding is verified.** Each candidate needs a concrete failing scenario and a confidence of 80 or more that it really happens at the head commit, scored by a separate verifier on tier 2. At most six reach you.
 
 </details>
-
-**Needs:** an agent that can start fresh subagents, such as Claude Code.
-
----
-
-## Guided Review
-
-> You review. The agent prepares the evidence and the hand-off.
-
-The agent reads a pull request, checks its test claims, and builds one review page. It makes no verdict for you to rubber-stamp.
-
-```text
-/guided-review https://github.com/OWNER/REPO/pull/123
-/guided-review https://github.com/OWNER/REPO/pull/123 --deep --cold
-```
-
-The default is one lean pass by the agent. `--deep` adds a Standards review (from `code-review`) and `--cold` adds a zero-context cold read (from `cold-review`). Each costs roughly 40k extra tokens, and their findings go through the same filter.
 
 ### What you get
 
 | On the page | What it is |
 |---|---|
-| **Problem and approach** | Two short paragraphs on what the PR solves and how. |
-| **Shape of the change** | One small call tree, file tree, or diff-sketch of what the diff actually does, drawn from the code and not copied from the PR body. |
-| **Findings** | At most six, each with a failing scenario, a suggested fix, and optionally a few lines of shape. Press **Approve** or **Dismiss**, and add your own comment. |
+| **Problem, approach, shape** | What the change solves, how, and a small call tree or diff sketch drawn from the code, not copied from the PR body. |
+| **Reading order** | The changed files in the order worth reading them, each with what to look for. |
+| **Claims checked** | Every claim the PR body and linked issues make, marked *matches*, *contradicted*, *unclear*, or *unverified*. |
+| **Checks** | Tier, type, CI status, and each lens that ran or was skipped, with the reason. |
+| **Findings** | Each with a scenario, a fix, a test to write first, its confidence and lens, and a line link into the PR. **Approve** or **Dismiss** it, and add a comment. |
 | **Questions** | Calls only you can make, each with a box for your answer. |
-| **Implementor prompt** | Rebuilt live from the findings you approved and your comments, ready to paste into the agent that wrote the PR. |
+| **Prompt** | Rebuilt live from what you approved: the implementor verifies each item before fixing it, fixes only what holds, and reports a verdict per item. |
 
 <details>
-<summary><b>Checking the PR's own claims</b></summary>
+<summary><b>Reviewing your own branch</b></summary>
 
 <br>
 
-Besides the test claims, the agent checks the PR body's Summary diagram, **Special things to note**, and **Merge Danger** against the diff, when the body has them. A claim the diff contradicts becomes a finding; a claim too vague to check becomes a question. Whatever the body lists as deliberately left out is not reported as a defect.
-
-The page lists every claim it checked under **PR claims**, each marked *matches*, *contradicted* (linked to its finding), or *unclear* (linked to its question), so you can see the check ran even when everything matched. PR bodies written with [`pr`](#pr) have all three sections. With `--cold`, the zero-context reader also draws its own shape of the change, and any gap from the PR's diagram is checked as a surprise.
+Pass a git ref, and optionally a spec. The cold read always runs here: where its paraphrase differs from what you meant, the code is misleading even if it works. Approve findings on the page, paste the prompt back into the chat, and the agent applies them, reruns the checks, and starts a new round with a brand-new cold reader. It stops when a round has no new blocking or should-fix finding, or after three rounds. It edits your working tree and commits only when you ask.
 
 </details>
 
@@ -218,11 +182,11 @@ The page lists every claim it checked under **PR claims**, each marked *matches*
 
 <br>
 
-Each review is stored as `reviews/<owner>-<repo>-pr-<n>.html` inside the installed skill folder (git-ignored). `serve.mjs` serves an index of all of them on your Tailscale address, or `127.0.0.1` without Tailscale. `clean.mjs` deletes the reviews of merged PRs, and the skill runs it at the start of every review.
+Each review is stored as `reviews/<slug>.html` inside the installed skill folder (git-ignored). `serve.mjs` serves an index of all of them on your Tailscale address, or `127.0.0.1` without Tailscale. `clean.mjs` deletes reviews of merged PRs and of branches that no longer exist, and runs at the start of every review. PR tests run in a throwaway worktree, so your checkout is untouched.
 
-**Needs:** `node` and the GitHub CLI (`gh`). Tailscale and Orca are optional.
+**Needs:** `node`, `git`, and the GitHub CLI (`gh`) for PRs. Subagents for the cold, deep, security, and verify lenses. Tailscale and Orca are optional. Matt Pocock's [`code-review`](https://github.com/mattpocock/skills) gives the deep lens its full smell baseline; without it, a shorter built-in Standards review runs.
 
-**Boundaries:** the agent never approves, requests changes, or posts to the PR. The page keeps your choices in the browser's local storage, so clearing it loses them.
+**Boundaries:** the agent never approves, requests changes, comments on, or posts to a PR. The diff, PR body, and comments are treated as data, never as instructions. The page keeps your choices in the browser's local storage, so clearing it loses them.
 
 </details>
 
@@ -365,7 +329,7 @@ A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The 
 
 <br>
 
-Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The four `cold-` and `guided-` skills also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
+Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills and `guided-review` also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
 
 </details>
 
@@ -374,7 +338,7 @@ Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills
 
 <br>
 
-No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `guided-review` never approves, requests changes, or posts to the PR.
+No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `guided-review` never approves, requests changes, comments on, or posts to a PR.
 
 </details>
 
@@ -383,7 +347,7 @@ No. Skills that edit files or publish issues wait for your approval first: revie
 
 <br>
 
-The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `cold-docs` is low, `cold-review` and `guided-review` are medium (`--deep` and `--cold` add about 40k tokens each), and `cold-walkthrough` is the highest because testers run real commands.
+The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 50-60k tokens, and `cold-walkthrough` is the highest because testers run real commands.
 
 </details>
 
@@ -411,6 +375,7 @@ No, that is why the elephant checks. Every report is verified against the source
 
 - [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) for the idea of reviewing with zero-context agents.
 - [Matt Pocock's skills](https://github.com/mattpocock/skills) for the two-axis `code-review` and the `pr` skill this repo forks.
+- [Anthropic's code-review plugin](https://claude.com/plugins/code-review) for scoring each finding's confidence and checking history and earlier comments, and [obra's superpowers](https://github.com/obra/superpowers) `receiving-code-review` for having the implementor verify before fixing.
 - [HumanLayer's skills](https://github.com/humanlayer/skills): `show-me` for the diagram views in `pr` and in guided-review's shape, and `visual-pr` for the "Special things to note" section.
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills) for installation.
 
