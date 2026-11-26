@@ -1,6 +1,6 @@
 # Lenses
 
-Every lens returns candidates. Each still needs a scenario in Find and a score in Verify. Fill `<DIFF>` with the diff command and directory (`git diff <BASE>...<HEAD>` in `<worktree>`), and keep each prompt's `<untrusted>` wrapping. When a subagent cannot start, run that lens inline and say so in its `why`.
+Every lens returns candidates. Each still needs a scenario in Find and a score in Verify. Fill `<DIFF>` with the diff command and directory: `git diff <base>...<head>` in the PR worktree for PR mode, and `git diff <BASE>` in the human's working tree for self mode, so uncommitted work is included. Keep each prompt's `<untrusted>` wrapping. When a subagent cannot start, run that lens inline and say so in its `why`.
 
 ## main (always, inline)
 

@@ -347,7 +347,7 @@ No. Skills that edit files or publish issues wait for your approval first: revie
 
 <br>
 
-The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 40k tokens, and `cold-walkthrough` is the highest because testers run real commands.
+The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 50-60k tokens, and `cold-walkthrough` is the highest because testers run real commands.
 
 </details>
 

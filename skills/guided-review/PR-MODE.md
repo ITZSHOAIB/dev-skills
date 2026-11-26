@@ -12,7 +12,7 @@ Someone else's PR. The human hands the approved findings back to its implementor
 - Test in a throwaway **worktree**, so the human's checkout is untouched. In the human's clone of the repo (the current directory when it is one; otherwise `gh repo clone <owner>/<repo> <scratch>/<repo> -- --filter=blob:none`):
 
   ```sh
-  git fetch origin pull/<n>/head:guided-review/pr-<n>
+  git fetch origin +pull/<n>/head:guided-review/pr-<n>
   git worktree add <scratch>/pr-<n> guided-review/pr-<n>
   ```
 
@@ -30,7 +30,7 @@ Each acceptance item of a linked issue is also a claim, checked against the code
 
 ## Hand off
 
-1. Remove the worktree: `git worktree remove <scratch>/pr-<n>` and `git branch -D guided-review/pr-<n>`.
+1. Remove the worktree, one command at a time so a failure skips nothing: `git worktree remove --force <scratch>/pr-<n>`; `rm -rf <scratch>/pr-<n>` if the folder is still there (installed dependencies can hold it); `git worktree prune`; `git branch -D guided-review/pr-<n>`.
 2. When `$ORCA_CHAT_SCRATCH_DIR` is set, show the page with `::orca-visual{file="<slug>.html" title="Review PR <n>"}` on its own line.
 3. Make sure the review server is up: `curl -s -m 2 http://<host>:8765/` answers; otherwise start `node <skill dir>/serve.mjs` in the background and read the address it prints. Give `http://<host>:8765/<slug>.html`. The server lists every stored review at `/`, binds the Tailscale IP only (127.0.0.1 without Tailscale), and stays up until the human asks to stop it.
 4. One line each for the top two or three findings, and one line naming the lenses that ran.

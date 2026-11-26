@@ -125,7 +125,6 @@ function build(){
     if(und){P.push(`${und} finding${und>1?"s are":" is"} still undecided. Approve or dismiss each one first.`);$("copy").disabled=true}
     else P.push(self?`Round ${D.round||1} of guided-review on ${D.pr.head}: every finding dismissed. Report the final state.`:`Review of ${D.pr.title} (branch ${D.pr.head}): no changes requested.`);
   }else{
-    const n=ok.length+qa.length+(note?1:0);
     P.push(`# Review follow-up: ${D.pr.title}`,"",
       `Repo: ${D.repo}`,`Branch: ${D.pr.head} (base ${D.pr.base})`+(D.pr.url?`\nPR: ${D.pr.url}`:"")+(self?`\nRound: ${D.round||1}`:""),
       `Source: guided-review. Every item below was approved by a human reviewer; dismissed findings are left out.`,"",
@@ -134,7 +133,7 @@ function build(){
       "2. Fix confirmed items only. For an item that is wrong or already fixed, change nothing and keep the evidence (file:line) for your report.",
       "3. Where an item has a test, write it first and watch it fail on the current code, then fix until it passes.",
       "4. A reviewer note overrides the suggested change.",
-      `5. Change nothing beyond these ${n} item${n>1?"s":""}. Follow the repo's AGENTS.md and existing style.`,"");
+      "5. Change nothing beyond the items below. Follow the repo's AGENTS.md and existing style.","");
     if(ok.length){P.push("## Findings","");
       ok.forEach(f=>{P.push(`### ${f.id} · ${f.sev} · ${f.where}`,"",`- Problem: ${f.defect}`,`- Scenario: ${f.scenario}`,`- Suggested change: ${f.fix}`);
         if(f.test)P.push(`- Test first: ${f.test}`);
@@ -144,7 +143,7 @@ function build(){
     if(note)P.push("## Also from the reviewer","",note,"");
     P.push("## Finish","",`1. Run: ${D.commands}. Every command must pass.`,
       self?`2. Leave the changes uncommitted; guided-review starts round ${(D.round||1)+1} next.`:"2. Commit with a conventional message and push to the same branch. Do not comment on, approve, or merge the PR.",
-      "3. Report one line per item: <id> · fixed | wrong | already fixed · the evidence or the change, then each command's result.");
+      "3. Report one line per finding: <id> · fixed | wrong | already fixed · the evidence or the change. Then what you did for each reviewer answer, and each command's result.");
   }
   $("prompt").textContent=P.join("\n");
 }
