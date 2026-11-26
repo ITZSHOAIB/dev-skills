@@ -115,7 +115,7 @@ Write `data.json` in a scratch folder, then run `node <skill dir>/build.mjs <dat
 - `reading` is the order a reviewer should read the changed files in, most important first, at most eight. Leave out lockfiles and generated files.
 - `claims` follows the rules in the mode file. A `contradicted` claim points at its finding and an `unclear` one at its question. A claim this run could not recheck (a full-suite count, a CI result) is `unverified`, not `matches`.
 
-The page gives the human Approve and Dismiss per finding, a comment box per finding and per question, and a live prompt built from the approved findings with the human's comments attached. The prompt always tells the implementor to verify each item before fixing it, reproducing blocking and should-fix items with a failing test, and to report a verdict per item. The review itself runs no new tests: reproduction is the implementor's first step. Decisions are saved in the browser and survive a rebuild of the same review. The agent does not write that prompt.
+The page gives the human Approve and Dismiss per finding, a comment box per finding and per question, and a live prompt built from the approved findings with the human's comments attached. The prompt asks the implementor, in one line, to check each item against the code before fixing it. The review itself runs no new tests: reproduction is the implementor's first step. Decisions are saved in the browser and survive a rebuild of the same review. The agent does not write that prompt.
 
 ## 6. Hand off
 

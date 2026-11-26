@@ -128,12 +128,7 @@ function build(){
     P.push(`# Review follow-up: ${D.pr.title}`,"",
       `Repo: ${D.repo}`,`Branch: ${D.pr.head} (base ${D.pr.base})`+(D.pr.url?`\nPR: ${D.pr.url}`:"")+(self?`\nRound: ${D.round||1}`:""),
       `Source: guided-review. Every item below was approved by a human reviewer; dismissed findings are left out.`,"",
-      "## How to work","",
-      "1. Verify before you fix. For each item, read the cited code at the branch head and trace the scenario. For a blocking or should-fix item, also reproduce it: write its test (or, without one, a test of its scenario) and watch it fail. Nits, and scenarios no test can express, are checked by tracing alone. Verdict: confirmed, already fixed, or wrong (the test passes, or the trace finds a guard). A review can be mistaken.",
-      "2. Fix confirmed items only. For an item that is wrong or already fixed, change nothing and keep the evidence (file:line) for your report.",
-      "3. Fix a confirmed item; where you wrote a failing test, fix until it passes and keep the test.",
-      "4. A reviewer note overrides the suggested change.",
-      "5. Change nothing beyond the items below. Follow the repo's AGENTS.md and existing style.","");
+      "Check each item against the code before fixing it, since a review can be mistaken; skip one that does not hold and say why. A reviewer note overrides the suggested change. Change nothing beyond these items.","");
     if(ok.length){P.push("## Findings","");
       ok.forEach(f=>{P.push(`### ${f.id} · ${f.sev} · ${f.where}`,"",`- Problem: ${f.defect}`,`- Scenario: ${f.scenario}`,`- Suggested change: ${f.fix}`);
         if(f.test)P.push(`- Test first: ${f.test}`);
@@ -143,7 +138,7 @@ function build(){
     if(note)P.push("## Also from the reviewer","",note,"");
     P.push("## Finish","",`1. Run: ${D.commands}. Every command must pass.`,
       self?`2. Leave the changes uncommitted; guided-review starts round ${(D.round||1)+1} next.`:"2. Commit with a conventional message and push to the same branch. Do not comment on, approve, or merge the PR.",
-      "3. Report one line per finding: <id> · fixed | wrong | already fixed · reproduced | traced · the evidence or the change. Then what you did for each reviewer answer, and each command's result.");
+      "3. Report one line per finding: <id> · fixed or skipped, and why. Then what you did for each reviewer answer, and each command's result.");
   }
   $("prompt").textContent=P.join("\n");
 }
