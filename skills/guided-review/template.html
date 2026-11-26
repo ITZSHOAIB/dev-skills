@@ -90,14 +90,12 @@ F.forEach(f=>{
   const s=S.f[fkey(f)]=S.f[fkey(f)]||{d:"",c:""},c=el("div","card "+f.sev);c.id=f.id;c.tabIndex=0;
   const top=el("div","row"),tag=el("span","pill dismissed","dismissed");
   top.append(el("b",null,f.id),el("span","pill "+f.sev,f.sev),link(f.href,el("code",null,f.where)),tag);
-  const meta=el("div","row mut");if(f.lens)meta.append(el("span",null,f.lens));if(f.confidence!=null)meta.append(el("span",null,`confidence ${f.confidence}`));const R=f.repro||{},rep=R.status==="reproduced";if(rep)meta.append(el("span","pill st matches","reproduced"));
+  const meta=el("div","row mut");if(f.lens)meta.append(el("span",null,f.lens));if(f.confidence!=null)meta.append(el("span",null,`confidence ${f.confidence}`));
   const a=el("button","a","Approve"),d=el("button","d","Dismiss"),acts=el("div","acts");acts.append(a,d);
   a.setAttribute("aria-label",`Approve ${f.id}`);d.setAttribute("aria-label",`Dismiss ${f.id}`);
   const set=v=>{s.d=s.d===v?"":v;paint();save();build()};a.onclick=()=>set("approve");d.onclick=()=>set("dismiss");
-  const body=el("div","body"),det=el("details");det.append(el("summary",null,(f.shape?"Fix and shape":"Fix")+(rep?" · failing test":"")),labelled("Fix",f.fix));
+  const body=el("div","body"),det=el("details");det.append(el("summary",null,f.shape?"Fix and shape":"Fix"),labelled("Fix",f.fix));
   if(f.test)det.append(labelled("Test first",f.test));if(f.shape)det.append(shape(f.shape));
-  if(rep){det.append(labelled("Reproduced with",el("code",null,R.command||"")));if(R.output)det.append(el("pre",null,R.output));if(R.test)det.append(el("pre",null,R.test))}
-  else if(R.status==="not-tried"&&R.why)det.append(labelled("Not reproduced",R.why));
   body.append(el("p",null,f.defect),labelled("Scenario",f.scenario));if(f.raised)body.append(labelled("Already raised",f.raised));body.append(det);
   const t=el("textarea");t.placeholder="Your comment (optional)";t.setAttribute("aria-label",`Comment on ${f.id}`);t.value=s.c;t.oninput=()=>{s.c=t.value;save();build()};
   top.append(acts);c.append(top,meta,body,t);$("findings").append(c);
@@ -131,22 +129,21 @@ function build(){
       `Repo: ${D.repo}`,`Branch: ${D.pr.head} (base ${D.pr.base})`+(D.pr.url?`\nPR: ${D.pr.url}`:"")+(self?`\nRound: ${D.round||1}`:""),
       `Source: guided-review. Every item below was approved by a human reviewer; dismissed findings are left out.`,"",
       "## How to work","",
-      "1. Verify before you fix. For each item, read the cited code at the branch head, trace the scenario, and give it a verdict: confirmed, already fixed, or wrong. A review can be mistaken.",
+      "1. Verify before you fix. For each item, read the cited code at the branch head and trace the scenario. For a blocking or should-fix item, also reproduce it: write its test (or, without one, a test of its scenario) and watch it fail. Nits, and scenarios no test can express, are checked by tracing alone. Verdict: confirmed, already fixed, or wrong (the test passes, or the trace finds a guard). A review can be mistaken.",
       "2. Fix confirmed items only. For an item that is wrong or already fixed, change nothing and keep the evidence (file:line) for your report.",
-      "3. Where an item has a test, write it first and watch it fail on the current code, then fix until it passes. A reproduced item already has its failing test below: start from it.",
+      "3. Fix a confirmed item; where you wrote a failing test, fix until it passes and keep the test.",
       "4. A reviewer note overrides the suggested change.",
       "5. Change nothing beyond the items below. Follow the repo's AGENTS.md and existing style.","");
     if(ok.length){P.push("## Findings","");
       ok.forEach(f=>{P.push(`### ${f.id} · ${f.sev} · ${f.where}`,"",`- Problem: ${f.defect}`,`- Scenario: ${f.scenario}`,`- Suggested change: ${f.fix}`);
         if(f.test)P.push(`- Test first: ${f.test}`);
-        const R=f.repro||{};if(R.status==="reproduced"){P.push(`- Reproduced: the reviewer's test failed at the branch head with \`${R.command||""}\`${R.output?":":"."}`);if(R.output)P.push("","```",R.output,"```");if(R.test)P.push("","  Recreate this test as your first step (it was deleted after the review):","","```",R.test,"```")}
         if(S.f[fkey(f)].c.trim())P.push(`- Reviewer note (takes priority): ${S.f[fkey(f)].c.trim()}`);
         if(f.shape)P.push("- Shape:","","```",f.shape,"```");P.push("")})}
     if(qa.length){P.push("## Reviewer answers","","Act on any answer that asks for a change; verify it the same way.","");qa.forEach(q=>P.push(`- ${q.id} · ${q.text}`,`  Answer: ${S.q[q.text].trim()}`));P.push("")}
     if(note)P.push("## Also from the reviewer","",note,"");
     P.push("## Finish","",`1. Run: ${D.commands}. Every command must pass.`,
       self?`2. Leave the changes uncommitted; guided-review starts round ${(D.round||1)+1} next.`:"2. Commit with a conventional message and push to the same branch. Do not comment on, approve, or merge the PR.",
-      "3. Report one line per finding: <id> · fixed | wrong | already fixed · the evidence or the change. Then what you did for each reviewer answer, and each command's result.");
+      "3. Report one line per finding: <id> · fixed | wrong | already fixed · reproduced | traced · the evidence or the change. Then what you did for each reviewer answer, and each command's result.");
   }
   $("prompt").textContent=P.join("\n");
 }

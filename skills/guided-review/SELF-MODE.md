@@ -20,8 +20,6 @@ Each spec requirement is a claim. Record it in `claims` with `claim` set to the 
 
 The `cold` lens always runs here. Compare its paraphrase with the spec, or with the intent you hold when there is none. Each mismatch is a **paraphrase gap**: the code says something other than what was meant. A gap is a finding even when the behaviour is correct, because the fix may be a better name or a clearer structure; its scenario is the misreading a new maintainer would make.
 
-Reproduction tests in this mode are written in the human's working tree as new `*.guided-review.test.*` files only, and deleted after the run. Before Verify, note `git status --short`; after it, confirm the output is the same.
-
 ## Build
 
 Set `mode` to `self`, leave `pr.url` out, and set `pr.head` to the branch name (or the short SHA when detached), `pr.base` to the fixed point, `pr.sha` to `git rev-parse HEAD`, and `pr.title` to a short name for the change. Set `round` to the loop round, starting at 1. A rebuild in a later round keeps the same slug, so the page keeps the human's earlier decisions for findings that are still listed.
