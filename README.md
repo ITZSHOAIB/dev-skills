@@ -8,6 +8,7 @@
   <a href="#install">Install</a> &ensp;·&ensp;
   <a href="#which-skill-do-i-need">Which skill?</a> &ensp;·&ensp;
   <a href="#the-idea">The idea</a> &ensp;·&ensp;
+  <a href="#ship">Ship</a> &ensp;·&ensp;
   <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
   <a href="#cold-docs">Cold Docs</a> &ensp;·&ensp;
   <a href="#cold-walkthrough">Cold Walkthrough</a> &ensp;·&ensp;
@@ -18,7 +19,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-5-6fd3ff.svg?style=flat-square" alt="Skills: 5"></a>
+  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-6-6fd3ff.svg?style=flat-square" alt="Skills: 6"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg?style=flat-square" alt="Install with npx skills"></a>
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-f59e0b.svg?style=flat-square" alt="Works with Claude Code">
   <img src="https://img.shields.io/badge/dependencies-none-4ade80.svg?style=flat-square" alt="No dependencies">
@@ -39,7 +40,7 @@ AI agents write code faster than anyone can check it, and docs faster than anyon
 npx skills add ITZSHOAIB/dev-skills -g
 ```
 
-That installs all five skills globally, plus `cold-review` as an alias for `guided-review`. Start a new agent session afterwards so they are picked up.
+That installs all six skills globally, plus `cold-review` as an alias for `guided-review`. Start a new agent session afterwards so they are picked up.
 
 <details>
 <summary><b>Install one skill, install per project, update, list, or remove</b></summary>
@@ -62,6 +63,7 @@ That installs all five skills globally, plus `cold-review` as an alias for `guid
 
 | You are about to… | Use | Run it with |
 |---|---|---|
+| **Build a ticket or issue** and get a draft PR | [Ship](#ship) | `/ship #42` |
 | **Merge your own change** and want a fresh pair of eyes first | [Guided Review](#guided-review) | `/guided-review main` |
 | **Review someone else's PR** and want to make the calls yourself | [Guided Review](#guided-review) | `/guided-review <PR URL>` |
 | **Change docs**, or wonder if they make sense to a newcomer | [Cold Docs](#cold-docs) | `/cold-docs <docs URL or folder>` |
@@ -94,11 +96,39 @@ flowchart LR
 
 | Skill | Looks at | Tester can | Cost | Best moment |
 |---|---|---|---|---|
+| [`ship`](#ship) | An issue, ticket, or spec | Edits code, pushes a branch, opens a draft PR; posts decisions with approval | Medium to high | When a ticket is ready to build |
 | [`guided-review`](#guided-review) | A PR or your branch | Read; fixes your branch with approval | Low to high, by tier | Reviewing any PR, or before merging your own |
 | [`cold-docs`](#cold-docs) | Documentation | Read | Low | On any docs change |
 | [`cold-walkthrough`](#cold-walkthrough) | A whole product | Read and run | High | Before a release |
 | [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
 | [`pr`](#pr) | Your own PR body | None | Minimal | Every time you open a PR |
+
+---
+
+## Ship
+
+> One ticket in, one draft PR out.
+
+The agent takes an issue, ticket, spec, or task and carries it to a **draft PR**. If decisions are still open, it grills you first. That is the only time it asks you anything; after that it runs on its own.
+
+```text
+/ship #42
+/ship docs/specs/webhooks.md --no-grill
+/ship "rate-limit the export endpoint" --no-pr
+```
+
+| Step | What happens |
+|---|---|
+| **Read** | The issue, its comments, and linked docs become a list of checkable acceptance items. |
+| **Grill** | Runs only when a decision is open or an item can't be checked (`--grill` and `--no-grill` override). Agreed decisions are posted as an issue comment once you approve the text. |
+| **Branch** | A `<type>/<issue>-<slug>` branch from a fresh default branch, with each issue marked `Closes` or `Part of`. |
+| **Build** | Test-first: each item's test goes red before any code is written; small conventional commits. |
+| **Check** | Every CI check that can run locally, then [`guided-review`](#guided-review)'s lenses on its own diff, with verified findings fixed. |
+| **Draft PR** | Pushed, a body written with [`pr`](#pr), opened as a draft, and CI watched; red checks it caused are fixed. |
+
+It never marks the PR ready, requests reviewers, or merges. Run `/guided-review <PR URL>` on the draft, then mark it ready yourself. `--no-pr` stops before pushing and prints the PR title and body.
+
+**Needs:** `gh` with push access, `guided-review` and `pr` from this repo, and Matt Pocock's [`grilling`](https://github.com/mattpocock/skills) skill for the grill step.
 
 ---
 
@@ -329,7 +359,7 @@ A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The 
 
 <br>
 
-Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills and `guided-review` also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
+Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills, `guided-review`, and `ship` also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
 
 </details>
 
@@ -338,7 +368,7 @@ Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills
 
 <br>
 
-No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `guided-review` never approves, requests changes, comments on, or posts to a PR.
+No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `ship` edits code because you asked it to build something, posts its grill decisions only after you approve the text, and stops at a draft PR that only you can mark ready or merge. `guided-review` never approves, requests changes, comments on, or posts to a PR.
 
 </details>
 
