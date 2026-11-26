@@ -13,13 +13,14 @@
   <a href="#cold-docs">Cold Docs</a> &ensp;·&ensp;
   <a href="#cold-walkthrough">Cold Walkthrough</a> &ensp;·&ensp;
   <a href="#to-epics">To Epics</a> &ensp;·&ensp;
+  <a href="#implement">Implement</a> &ensp;·&ensp;
   <a href="#pr">PR</a> &ensp;·&ensp;
   <a href="#faq">FAQ</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-6-6fd3ff.svg?style=flat-square" alt="Skills: 6"></a>
+  <a href="#skills-at-a-glance"><img src="https://img.shields.io/badge/skills-7-6fd3ff.svg?style=flat-square" alt="Skills: 7"></a>
   <a href="https://github.com/vercel-labs/skills"><img src="https://img.shields.io/badge/install-npx%20skills-0d1b2e.svg?style=flat-square" alt="Install with npx skills"></a>
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-f59e0b.svg?style=flat-square" alt="Works with Claude Code">
   <img src="https://img.shields.io/badge/dependencies-none-4ade80.svg?style=flat-square" alt="No dependencies">
@@ -40,7 +41,7 @@ AI agents write code faster than anyone can check it, and docs faster than anyon
 npx skills add ITZSHOAIB/dev-skills -g
 ```
 
-That installs all six skills globally. Start a new agent session afterwards so they are picked up.
+That installs all seven skills globally. Start a new agent session afterwards so they are picked up.
 
 <details>
 <summary><b>Install one skill, install per project, update, list, or remove</b></summary>
@@ -68,6 +69,7 @@ That installs all six skills globally. Start a new agent session afterwards so t
 | **Change docs**, or wonder if they make sense to a newcomer | [Cold Docs](#cold-docs) | `/cold-docs <docs URL or folder>` |
 | **Ship a release**, or change install, scaffolding, the CLI or its errors | [Cold Walkthrough](#cold-walkthrough) | `/cold-walkthrough <docs URL or package>` |
 | **Plan a project as a small set of prioritized, dependency-aware epics** | [To Epics](#to-epics) | `/to-epics <PRD or roadmap>` |
+| **Build a ticket or spec** and get a draft PR | [Implement](#implement) | `/implement <spec or issue>` |
 | **Open a PR** and want a body that reviews fast | [PR](#pr) | "write the PR body" |
 
 ---
@@ -100,6 +102,7 @@ flowchart LR
 | [`cold-docs`](#cold-docs) | Documentation | Read | Low | On any docs change |
 | [`cold-walkthrough`](#cold-walkthrough) | A whole product | Read and run | High | Before a release |
 | [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
+| [`implement`](#implement) | A spec or tickets | Edits code, pushes a branch, opens a draft PR | Medium to high | When a ticket is ready to build |
 | [`pr`](#pr) | Your own PR body | None | Minimal | Every time you open a PR |
 
 ---
@@ -340,6 +343,35 @@ It reads the current repository and issue tracker, checks existing work for dupl
 
 ---
 
+## Implement
+
+> Built on a branch, checked like CI, handed over as a draft.
+
+A fork of Matt Pocock's [`implement`](https://github.com/mattpocock/skills). The agent builds the work from a spec, issue, or tickets on its own branch, runs every check CI runs, reviews itself with `code-review`, then opens a **draft PR** with a body written by [`pr`](#pr) and watches CI.
+
+```text
+/implement docs/specs/webhooks.md
+/implement #42
+/implement #42 --no-pr
+```
+
+| Step | What happens |
+|---|---|
+| **Branch** | A `<type>/<issue>-<slug>` branch from a fresh default branch; never commits to `main`. Each issue is linked as `Closes` or `Part of`. |
+| **Build** | TDD at agreed seams, small conventional commits. |
+| **Verify** | Every CI check that can run locally, a changeset when the repo uses them, and a test that failed before and passes after. |
+| **Review** | `code-review` against the base branch; kept findings go into the PR body with their reason. |
+| **Draft PR** | Pushed and opened as a draft, then CI is watched and red checks it caused are fixed. |
+
+It never marks the PR ready, requests reviewers, or merges: run [`guided-review`](#guided-review) on the draft, then mark it ready yourself. `--no-pr` stops after the review and prints the PR title and body.
+
+> [!NOTE]
+> If you also have Matt Pocock's `implement` installed, remove it first (`npx skills remove implement -g`), since both use the same name.
+
+**Needs:** `gh` authenticated with push access to the repository.
+
+---
+
 ## PR
 
 > A PR body a reviewer can read in a minute.
@@ -365,7 +397,7 @@ A fork of Matt Pocock's [`pr`](https://github.com/mattpocock/skills) skill. The 
 
 <br>
 
-Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The four `cold-` and `guided-` skills also need to start fresh subagents, which Claude Code can. `pr` and `to-epics` do not need subagents.
+Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The four `cold-` and `guided-` skills also need to start fresh subagents, which Claude Code can. `pr`, `to-epics`, and `implement` do not need subagents.
 
 </details>
 
@@ -374,7 +406,7 @@ Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills
 
 <br>
 
-No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `guided-review` never approves, requests changes, or posts to the PR.
+No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `implement` edits code because you asked it to build something, and it stops at a draft PR that only you can mark ready or merge. `guided-review` never approves, requests changes, or posts to the PR.
 
 </details>
 
