@@ -69,8 +69,13 @@ Done when every lens has reported and each candidate has a scenario or is droppe
 
 Give each candidate a **confidence** from 0 to 100 that the scenario really happens at the head commit.
 
-- Tier 2: start one verifier subagent with all candidates batched, using the verifier prompt in [LENSES.md](LENSES.md). It gets the diff and the candidates, not your reasoning.
-- Tier 0 and 1: score each yourself, after re-reading the cited lines.
+- Tier 2: start one verifier subagent with all candidates batched, using the verifier prompt in [LENSES.md](LENSES.md). It gets the diff and the candidates, not your reasoning. It argues against each candidate first, then tries to **reproduce** each blocking and should-fix one with a new failing test.
+- Tier 0 and 1: score each yourself. First write the strongest case that the scenario cannot happen, then re-read the cited lines looking for it.
+
+A reproduction settles the score:
+- `reproduced` (the test fails for the reason claimed) raises confidence to at least 95.
+- `passed` (the test passes) drops the candidate, unless the verifier names why the test misses the scenario.
+- `not-tried` (no test can express it, or setup failed) keeps the traced score.
 
 Keep a candidate at 80 or above. Below 80, drop it, or ask it as a question when only the human can settle it. Then keep at most six, highest severity first, and fold the extra nits into one.
 
@@ -81,6 +86,7 @@ Each finding has:
 - `fix` and `test` (the check that would fail first; empty for a nit);
 - `confidence` and `lens` (`main`, `history`, `cold`, `deep`, `security`);
 - optional `raised`: who already raised it, and where, when an earlier review comment covers it;
+- optional `repro`: the reproduction result, `{"status": "reproduced | not-tried", "command": "", "output": "at most 3 lines", "test": "the test file when under 20 lines", "why": "for not-tried"}`;
 - optional `shape`: at most 8 lines placing the defect in the call tree, or sketching the fix. Add it only when it is shorter than the prose it replaces.
 
 Done when every kept finding scores 80 or above and every dropped one has been scored.
@@ -104,7 +110,7 @@ Write `data.json` in a scratch folder, then run `node <skill dir>/build.mjs <dat
   "verified": "Ran: ... Read only: ...",
   "repo": "absolute path of the human's clone",
   "commands": "the repo's verify commands",
-  "findings": [{"id": "F1", "sev": "", "where": "", "defect": "", "scenario": "", "fix": "", "test": "", "confidence": 90, "lens": "main", "raised": "", "shape": ""}],
+  "findings": [{"id": "F1", "sev": "", "where": "", "defect": "", "scenario": "", "fix": "", "test": "", "confidence": 90, "lens": "main", "raised": "", "repro": {}, "shape": ""}],
   "questions": [{"id": "Q1", "text": ""}]
 }
 ```
@@ -115,7 +121,7 @@ Write `data.json` in a scratch folder, then run `node <skill dir>/build.mjs <dat
 - `reading` is the order a reviewer should read the changed files in, most important first, at most eight. Leave out lockfiles and generated files.
 - `claims` follows the rules in the mode file. A `contradicted` claim points at its finding and an `unclear` one at its question. A claim this run could not recheck (a full-suite count, a CI result) is `unverified`, not `matches`.
 
-The page gives the human Approve and Dismiss per finding, a comment box per finding and per question, and a live prompt built from the approved findings with the human's comments attached. The prompt always tells the implementor to verify each item before fixing it, and to report a verdict per item. Decisions are saved in the browser and survive a rebuild of the same review. The agent does not write that prompt.
+The page gives the human Approve and Dismiss per finding, a comment box per finding and per question, and a live prompt built from the approved findings with the human's comments attached. The prompt always tells the implementor to verify each item before fixing it, and to report a verdict per item. A reproduced finding carries its failing test into the prompt, so the implementor starts from red. Decisions are saved in the browser and survive a rebuild of the same review. The agent does not write that prompt.
 
 ## 6. Hand off
 
