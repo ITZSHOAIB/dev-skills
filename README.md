@@ -9,6 +9,7 @@
   <a href="#which-skill-do-i-need">Which skill?</a> &ensp;·&ensp;
   <a href="#the-workflow">The workflow</a> &ensp;·&ensp;
   <a href="#to-epics">To Epics</a> &ensp;·&ensp;
+  <a href="#triage">Triage</a> &ensp;·&ensp;
   <a href="#ship">Ship</a> &ensp;·&ensp;
   <a href="#pr">PR</a> &ensp;·&ensp;
   <a href="#guided-review">Guided Review</a> &ensp;·&ensp;
@@ -63,6 +64,7 @@ That installs all six skills globally, plus `cold-review` as an alias for `guide
 | You are about to… | Use | Run it with |
 |---|---|---|
 | **Plan a project as a small set of prioritized, dependency-aware epics** | [To Epics](#to-epics) | `/to-epics <PRD or roadmap>` |
+| **Turn a bug report or rough request** into an issue ready to build | [Triage](#triage) | `/triage #57` |
 | **Build a ticket or issue** and get a draft PR | [Ship](#ship) | `/ship #42` |
 | **Open a PR** and want a body that reviews fast | [PR](#pr) | "write the PR body" |
 | **Merge your own change** and want a fresh pair of eyes first | [Guided Review](#guided-review) | `/guided-review main` |
@@ -77,6 +79,7 @@ That installs all six skills globally, plus `cold-review` as an alias for `guide
 ```mermaid
 flowchart LR
     P["Plan<br/><b>to-epics</b>"] --> B["Build<br/><b>ship</b>"]
+    T["Report<br/><b>triage</b>"] --> B
     B -->|"draft PR,<br/>body by <b>pr</b>"| R["Review<br/><b>guided-review</b>"]
     R -->|"you merge"| L["Release<br/><b>cold-docs</b><br/><b>cold-walkthrough</b>"]
 ```
@@ -106,6 +109,7 @@ The goldfish sees the code, the docs, or the product, and nothing about why they
 | Skill | Takes | Can touch | Cost | Best moment |
 |---|---|---|---|---|
 | [`to-epics`](#to-epics) | A PRD or roadmap | Read; draft and publish issues with approval | Medium | Before implementation starts |
+| [`triage`](#triage) | A report or rough issue | Read; runs a reproduction; posts the triage with approval | Low | When a report comes in |
 | [`ship`](#ship) | An issue, ticket, or spec | Edits code, pushes a branch, opens a draft PR; posts decisions with approval | Medium | When a ticket is ready to build |
 | [`pr`](#pr) | Your own PR body | None | Minimal | Every time you open a PR |
 | [`guided-review`](#guided-review) | A PR or your branch | Read; fixes your branch with approval | Low to high, by tier | Reviewing any PR, or before merging your own |
@@ -128,6 +132,31 @@ To Epics turns a PRD, roadmap, or project discussion into a compact map of domai
 It reads the current repository and issue tracker, checks existing work for duplicates, and shows you the proposed domains, priorities, slices, and dependency waves. It only creates or edits issues after you approve the concrete map. Slices stay in the epic unless separate discussion, ownership, or outside contribution justifies a sub-issue.
 
 **Needs:** `gh` authenticated for the target GitHub repository. It does not use subagents.
+
+---
+
+## Triage
+
+> A report in, an issue ready to build out.
+
+Triage turns a bug report, feature request, or rough issue into one [`ship`](#ship) can build without asking: the problem in a paragraph, a reproduction for a bug, checkable acceptance items, and the decisions still open.
+
+```text
+/triage #57
+/triage "export fails with a 500 when the name has an emoji"
+```
+
+| Step | What happens |
+|---|---|
+| **Read** | The report and its comments, followed into the code it points at. |
+| **Sort** | Searches for duplicates, then sorts it: duplicate, question, needs info, bug, or feature. |
+| **Reproduce** | For a bug, runs the steps or a small test once until it fails, in a temporary worktree of the default branch. |
+| **Draft** | A comment with Problem, Reproduce, Acceptance, and Open decisions, plus labels the repo already has. |
+| **Post** | Comments on the issue, or opens one for a pasted report, only after you approve the text. |
+
+It commits no code and closes nothing. A duplicate, question, or report missing key details gets a drafted reply instead.
+
+**Needs:** `gh` authenticated for the target repository. It does not use subagents.
 
 ---
 
@@ -367,7 +396,7 @@ flowchart LR
 
 <br>
 
-Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills and `guided-review` also need to start fresh subagents, which Claude Code can. `pr`, `to-epics`, and `ship` do not need subagents.
+Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills) format. The `cold-` skills and `guided-review` also need to start fresh subagents, which Claude Code can. `pr`, `to-epics`, `ship`, and `triage` do not need subagents.
 
 </details>
 
@@ -376,7 +405,7 @@ Any agent that supports the [Agent Skills](https://github.com/vercel-labs/skills
 
 <br>
 
-No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` asks before writing to the tracker. `ship` edits code because you asked it to build something, posts its grill decisions only after you approve the text, and stops at a draft PR that only you can mark ready or merge. `guided-review` never approves, requests changes, comments on, or posts to a PR.
+No. Skills that edit files or publish issues wait for your approval first: review skills ask before applying fixes, and `to-epics` and `triage` ask before writing to the tracker. `ship` edits code because you asked it to build something, posts its grill decisions only after you approve the text, and stops at a draft PR that only you can mark ready or merge. `guided-review` never approves, requests changes, comments on, or posts to a PR.
 
 </details>
 
@@ -385,7 +414,7 @@ No. Skills that edit files or publish issues wait for your approval first: revie
 
 <br>
 
-The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `to-epics` is medium because it researches and organizes issue scope, `ship` is medium because it builds and tests the change, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 50-60k tokens, and `cold-walkthrough` is the highest because testers run real commands.
+The fresh-reader and tester skills use more tokens than a single review. `pr` is negligible, `triage` is low, `to-epics` is medium because it researches and organizes issue scope, `ship` is medium because it builds and tests the change, `cold-docs` is low, `guided-review` scales with the tier: tier 0 is a single pass, and each tier 2 lens or the verifier adds about 50-60k tokens, and `cold-walkthrough` is the highest because testers run real commands.
 
 </details>
 
