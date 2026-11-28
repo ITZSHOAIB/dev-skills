@@ -53,4 +53,12 @@ Push, then `gh pr create --draft` with a conventional title and a body that foll
 
 ## 7. Hand off
 
-Report the PR URL, the CI state, and any deferred work, and suggest `/guided-review <PR URL>`.
+When `$ORCA_AGENT_SESSION_ID` is set, you run in Orca: start the review in a fresh tab of your own workspace, so this session stays on the build. `orca agent show "$ORCA_AGENT_SESSION_ID" --json` gives its `worktreeId`, then:
+
+```sh
+orca agent launch --agent <agent> [--model <model>] --worktree "id:<worktreeId>" --prompt "/guided-review <PR URL>"
+```
+
+Take `<agent>` and `<model>` from `$SHIP_REVIEWER` (`<agent> [model]`, such as `opencode opencode/big-pickle`); when it is unset, use the agent you are running as. Outside Orca, suggest `/guided-review <PR URL>` instead.
+
+Report the PR URL, the CI state, any deferred work, and where the review is running.

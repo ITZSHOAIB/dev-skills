@@ -180,10 +180,11 @@ The agent takes an issue, ticket, spec, or task and carries it to a **draft PR**
 | **Build** | Test-first: each item's test goes red before any code is written; small conventional commits. |
 | **Check** | Every CI check that can run locally, then one read of its own diff against the acceptance items. The full review is yours, with [`guided-review`](#guided-review). |
 | **Draft PR** | Pushed, a body written with [`pr`](#pr), opened as a draft, and CI watched; red checks it caused are fixed. |
+| **Hand off** | In [Orca](https://github.com/stablyai/orca), `/guided-review` starts on the draft in a new agent tab, so the build session stays clean. `SHIP_REVIEWER` picks the reviewer (`opencode opencode/big-pickle`); unset, it is the same agent. |
 
-It never marks the PR ready, requests reviewers, or merges. Run `/guided-review <PR URL>` on the draft, then mark it ready yourself. `--no-pr` stops before pushing and prints the PR title and body.
+It never marks the PR ready, requests reviewers, or merges. Work through the review on the draft (outside Orca, run `/guided-review <PR URL>` yourself), then mark it ready yourself. `--no-pr` stops before pushing and prints the PR title and body.
 
-**Needs:** `gh` with push access, `pr` from this repo, and Matt Pocock's [`grilling`](https://github.com/mattpocock/skills) skill for the grill step.
+**Needs:** `gh` with push access, `pr` from this repo, and Matt Pocock's [`grilling`](https://github.com/mattpocock/skills) skill for the grill step. Orca is optional.
 
 ---
 
