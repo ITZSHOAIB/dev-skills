@@ -59,6 +59,6 @@ When `$ORCA_AGENT_SESSION_ID` is set, you run in Orca: start the review in a fre
 orca agent launch --agent <agent> [--model <model>] --worktree "id:<worktreeId>" --prompt "/guided-review <PR URL>"
 ```
 
-Take `<agent>` and `<model>` from `$SHIP_REVIEWER` (`<agent> [model]`, such as `opencode opencode/big-pickle`); when it is unset, use the agent you are running as. Outside Orca, suggest `/guided-review <PR URL>` instead.
+Take `<agent>` and `<model>` from `$SHIP_REVIEWER` (`<agent> [model]`, such as `claude claude-sonnet-5-5`; OpenCode's terminal takes no model flag and reviews with its configured model); when it is unset, use the agent you are running as. Outside Orca, suggest `/guided-review <PR URL>` instead.
 
 Report the PR URL, the CI state, any deferred work, and where the review is running.
